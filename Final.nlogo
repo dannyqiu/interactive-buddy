@@ -8,13 +8,15 @@ breed [pistols pistol]
 breed [machine-guns machine-gun]
 breed [shotguns shotgun]
 breed [flame-throwers flame-thrower]
-breed [launchers launcher]
-breed [missiles missile]
+breed [rocket-launchers rocket-launcher]
+breed [gernade-launchers gernade-launcher]
 breed [mines mine]
 breed [bombs bomb]
 
 breed [bullets bullet]
 breed [fireballs fireball]
+breed [gernades gernade]
+breed [rockets rocket]
 
 buddies-own [flame-timer]
 fireballs-own [extinguish]
@@ -29,12 +31,16 @@ to setup
   set-default-shape pistols "pistol"
   set-default-shape machine-guns "machine gun"
   ;set-default-shape shotguns "shotgun"
-  ;set-dafault-shape flame-throwers "flame thrower"
+  ;set-default-shape flame-throwers "flame thrower"
+  ;set-default-shape rocket-launchers "rocket launcher"
+  ;set-default-shape grenade-launchers "grenade launcher"
   
-  ;set-default-shape bullets "bullet"
+  set-default-shape bullets "bullet"
   set-default-shape fireballs "fire"
+  ;set-default-shape rockets "rocket"
+  ;set-default-shape grenades "grenade"
   
-  set weapons (list "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" "Mines" "Bombs")
+  set weapons (list "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" "Grenade Launcher" "Mines" "Bombs")
 end
 
 to play
@@ -45,9 +51,14 @@ to play
   if weapon = "Machine Gun" [machine-gun-move]
   if weapon = "Shotgun" [shotgun-move]
   if weapon = "Flame Thrower" [flame-thrower-move]
+  if weapon = "Rocket Launcher" [rocket-launcher-move]
+  if weapon = "Grenade Launcher" [grenade-launcher-move]
   
   bullet-move
   fireball-move
+  rocket-move
+  grenade-move
+  
   buddy-effects
   wait .01
 end
@@ -84,7 +95,7 @@ to pistol-move
     create-pistols 1 [set size 7]] [
   ask pistols [weapon-target]
   if mouse-down? [
-    every .35 [ask pistols [hatch-bullets 1 [set size 2.5]]]]]
+    every .35 [ask pistols [hatch-bullets 1 [set size 3]]]]]
 end
 
 to machine-gun-move
@@ -92,7 +103,7 @@ to machine-gun-move
     create-machine-guns 1 [set size 7]] [
   ask machine-guns [weapon-target]
   if mouse-down? [
-    every .05 [ask machine-guns [hatch-bullets 1 [set size 2.5]]]]]
+    every .05 [ask machine-guns [hatch-bullets 1 [set size 3]]]]]
 end
 
 to shotgun-move
@@ -100,7 +111,7 @@ to shotgun-move
     create-shotguns 1 [set size 7]] [
   ask shotguns [weapon-target]
   if mouse-down? [
-    every .5 [ask shotguns [hatch-bullets 6 [set size 2.5 rt random 21 - 10]]]]]
+    every .5 [ask shotguns [hatch-bullets 6 [set size 3 rt random 21 - 10]]]]]
 end
 
 to flame-thrower-move
@@ -113,6 +124,22 @@ to flame-thrower-move
                                                       set extinguish 25]]]]]
 end
 
+to rocket-launcher-move
+  ifelse (count rocket-launchers = 0) [change-weapon
+    create-rocket-launchers 1 [set size 7]] [
+  ask rocket-launchers [weapon-target]
+  if mouse-down? [
+    every 2 [ask rocket-launchers [hatch-rockets 1 [set size 7]]]]]
+end
+
+to grenade-launcher-move
+  ifelse (count grenade-launchers = 0) [change-weapon
+    create-grenade-launchers 1 [set size 7]] [
+  ask grenade-launchers [weapon-target]
+  if mouse-down? [
+    every 1.5 [ask grenade-launchers [hatch-grenades 1 [set size 5]]]]]
+end
+
 to bullet-move
   ask bullets [
     if any? buddies in-radius 3 [
@@ -122,7 +149,7 @@ to bullet-move
         set heading (heading + 180)
         if [count patches in-radius 2 with [pcolor = blue]] of patch-ahead 2 = 0 [jump 2.5]]
       die]
-    ifelse can-move? 1 [fd 1] [die]]
+    ifelse can-move? 1 [fd .5] [die]]
 end
 
 to fireball-move
@@ -232,11 +259,11 @@ NIL
 CHOOSER
 27
 148
-178
+189
 193
 Weapon
 Weapon
-"Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" "Mines" "Bombs"
+"Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" "Gernade Launcher" "Mines" "Bombs"
 5
 
 SWITCH
@@ -307,7 +334,7 @@ true
 0
 Polygon -7500403 true true 150 5 40 250 150 205 260 250
 
-bullet (handgun)
+bullet
 true
 0
 Rectangle -7500403 true true 135 135 165 180
@@ -419,11 +446,11 @@ true
 0
 Rectangle -7500403 true true 150 120 270 150
 Line -16777216 false 150 135 270 135
-Polygon -6459832 true false 180 135 195 165 120 165 105 135 180 135 181 137 182 137 182 137 197 167
+Polygon -6459832 true false 180 135 195 165 120 165 105 135 180 135 181 137 182 137 197 167
 Polygon -6459832 true false 150 121 148 123 85 120 42 139 8 125 11 174 45 155 111 153 151 141
 
 @#$#@#$#@
-NetLogo 5.0.2
+NetLogo 5.0.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
