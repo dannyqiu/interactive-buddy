@@ -9,13 +9,13 @@ breed [machine-guns machine-gun]
 breed [shotguns shotgun]
 breed [flame-throwers flame-thrower]
 breed [rocket-launchers rocket-launcher]
-breed [gernade-launchers gernade-launcher]
+breed [grenade-launchers grenade-launcher]
 breed [mines mine]
 breed [bombs bomb]
 
 breed [bullets bullet]
 breed [fireballs fireball]
-breed [gernades gernade]
+breed [grenades grenade]
 breed [rockets rocket]
 
 buddies-own [flame-timer]
@@ -37,8 +37,8 @@ to setup
   
   set-default-shape bullets "bullet"
   set-default-shape fireballs "fire"
-  ;set-default-shape rockets "rocket"
-  ;set-default-shape grenades "grenade"
+  set-default-shape rockets "rocket"
+  set-default-shape grenades "grenade"
   
   set weapons (list "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" "Grenade Launcher" "Mines" "Bombs")
 end
@@ -56,8 +56,8 @@ to play
   
   bullet-move
   fireball-move
-  rocket-move
-  grenade-move
+  ;rocket-move
+  ;grenade-move
   
   buddy-effects
   wait .01
@@ -391,6 +391,23 @@ Polygon -7500403 true true 154 164 175 150 175 51 145 50 144 158
 Polygon -7500403 true true 123 131 103 144 104 166 126 181 146 163 153 169 181 149 210 145 210 72 241 147 240 207 195 246 130 247 53 201 60 110 123 99
 Polygon -7500403 true true 178 146 178 51 207 51 206 142
 
+grenade
+true
+0
+Rectangle -7500403 true true 135 90 165 135
+Circle -7500403 true true 108 108 85
+Line -16777216 false 120 120 120 180
+Line -16777216 false 135 105 135 195
+Line -16777216 false 150 105 150 195
+Line -16777216 false 165 105 165 195
+Line -16777216 false 180 120 180 180
+Line -16777216 false 105 135 195 135
+Line -16777216 false 120 120 180 120
+Line -16777216 false 105 150 195 150
+Line -16777216 false 105 165 195 165
+Line -16777216 false 120 180 180 180
+Circle -7500403 false true 160 72 30
+
 happy buddy
 false
 10
@@ -424,6 +441,26 @@ Polygon -7500403 false true 127 164 140 164 148 162 154 158 158 152 165 137 132 
 Line -7500403 true 143 138 142 146
 Line -7500403 true 142 147 148 155
 
+rocket
+true
+0
+Rectangle -7500403 true true 120 135 180 225
+Polygon -7500403 true true 135 225 165 225 180 255 120 255
+Polygon -7500403 true true 120 135 135 60 165 60 180 135
+Circle -7500403 true true 135 45 30
+
+rocket launcher
+true
+0
+Rectangle -7500403 true true 105 150 120 195
+Rectangle -7500403 true true 165 150 180 180
+Rectangle -7500403 true true 75 105 225 150
+Rectangle -7500403 true true 180 90 195 105
+Circle -16777216 false false 195 105 0
+Polygon -7500403 false true 120 180 150 165 150 150 120 150
+Line -7500403 true 120 150 135 165
+Polygon -7500403 true true 225 105 255 120 255 135 225 150
+
 sad buddy
 false
 10
@@ -450,7 +487,7 @@ Polygon -6459832 true false 180 135 195 165 120 165 105 135 180 135 181 137 182 
 Polygon -6459832 true false 150 121 148 123 85 120 42 139 8 125 11 174 45 155 111 153 151 141
 
 @#$#@#$#@
-NetLogo 5.0.3
+NetLogo 5.0.2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
