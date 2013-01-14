@@ -18,8 +18,11 @@ breed [fireballs fireball]
 breed [grenades grenade]
 breed [rockets rocket]
 
+breed [explosions explosion]
+
 buddies-own [flame-timer]
 fireballs-own [extinguish]
+explosions-own [explosion-timer]
 
 to setup
   ca
@@ -40,6 +43,8 @@ to setup
   set-default-shape rockets "rocket"
   set-default-shape grenades "grenade"
   
+  ;set-default-shape explosions "explosion"
+  
   set weapons (list "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" "Grenade Launcher" "Mines" "Bombs")
 end
 
@@ -56,10 +61,11 @@ to play
   
   bullet-move
   fireball-move
-  ;rocket-move
+  rocket-move
   ;grenade-move
   
   buddy-effects
+  explosion-fade
   wait .01
 end
 
@@ -129,7 +135,7 @@ to rocket-launcher-move
     create-rocket-launchers 1 [set size 7]] [
   ask rocket-launchers [weapon-target]
   if mouse-down? [
-    every 2 [ask rocket-launchers [hatch-rockets 1 [set size 7]]]]]
+    every 1 [ask rocket-launchers [hatch-rockets 1 [set size 7]]]]]
 end
 
 to grenade-launcher-move
@@ -137,7 +143,7 @@ to grenade-launcher-move
     create-grenade-launchers 1 [set size 7]] [
   ask grenade-launchers [weapon-target]
   if mouse-down? [
-    every 1.5 [ask grenade-launchers [hatch-grenades 1 [set size 5]]]]]
+    every .7 [ask grenade-launchers [hatch-grenades 1 [set size 5]]]]]
 end
 
 to bullet-move
@@ -161,6 +167,14 @@ to fireball-move
     if extinguish <= 0 [die]]
 end
 
+to rocket-move
+  ask rockets [
+    if any? buddies in-radius 4 [
+      hatch-explosions 1 [set explosion-timer 39]
+      die]
+    ifelse can-move? 1.2 [jump 1.2] [die]]
+end
+
 to buddy-effects
   ask buddies [
     if flame-timer > 0 [
@@ -174,9 +188,21 @@ to weapon-target
 end
   
 to change-weapon
-  ask turtles with [breed != buddies and breed != bullets] [die]
+  ask turtles with [breed != buddies and 
+                    breed != bullets and 
+                    breed != fireballs and
+                    breed != grenades and
+                    breed != rockets and
+                    breed != explosions] [die]
 end
-  
+
+to explosion-fade
+  ask explosions [set size explosion-timer
+                  set color (scale-color red explosion-timer 39 0)
+                  set explosion-timer (explosion-timer - 1)
+                  if explosion-timer <= 0 [die]]
+end
+
 to-report square [x]
   report x * x
 end
@@ -263,8 +289,8 @@ CHOOSER
 193
 Weapon
 Weapon
-"Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" "Gernade Launcher" "Mines" "Bombs"
-5
+"Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" "Grenade Launcher" "Mines" "Bombs"
+7
 
 SWITCH
 10
@@ -444,10 +470,11 @@ Line -7500403 true 142 147 148 155
 rocket
 true
 0
-Rectangle -7500403 true true 120 135 180 225
-Polygon -7500403 true true 135 225 165 225 180 255 120 255
-Polygon -7500403 true true 120 135 135 60 165 60 180 135
-Circle -7500403 true true 135 45 30
+Rectangle -7500403 true true 120 120 180 225
+Polygon -7500403 true true 120 120 135 75 165 75 180 120
+Circle -7500403 true true 135 60 30
+Polygon -7500403 true true 120 165 105 225 120 225
+Polygon -7500403 true true 180 165 195 225 180 225
 
 rocket launcher
 true
@@ -456,7 +483,6 @@ Rectangle -7500403 true true 105 150 120 195
 Rectangle -7500403 true true 165 150 180 180
 Rectangle -7500403 true true 75 105 225 150
 Rectangle -7500403 true true 180 90 195 105
-Circle -16777216 false false 195 105 0
 Polygon -7500403 false true 120 180 150 165 150 150 120 150
 Line -7500403 true 120 150 135 165
 Polygon -7500403 true true 225 105 255 120 255 135 225 150
@@ -485,6 +511,19 @@ Rectangle -7500403 true true 150 120 270 150
 Line -16777216 false 150 135 270 135
 Polygon -6459832 true false 180 135 195 165 120 165 105 135 180 135 181 137 182 137 197 167
 Polygon -6459832 true false 150 121 148 123 85 120 42 139 8 125 11 174 45 155 111 153 151 141
+
+sun
+false
+0
+Circle -7500403 true true 75 75 150
+Polygon -7500403 true true 300 150 240 120 240 180
+Polygon -7500403 true true 150 0 120 60 180 60
+Polygon -7500403 true true 150 300 120 240 180 240
+Polygon -7500403 true true 0 150 60 120 60 180
+Polygon -7500403 true true 60 195 105 240 45 255
+Polygon -7500403 true true 60 105 105 60 45 45
+Polygon -7500403 true true 195 60 240 105 255 45
+Polygon -7500403 true true 240 195 195 240 255 255
 
 @#$#@#$#@
 NetLogo 5.0.2
