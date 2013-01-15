@@ -33,7 +33,7 @@ to setup
   set-default-shape punches "fist"
   set-default-shape pistols "pistol"
   set-default-shape machine-guns "machine gun"
-  ;set-default-shape shotguns "shotgun"
+  set-default-shape shotguns "shotgun"
   ;set-default-shape flame-throwers "flame thrower"
   ;set-default-shape rocket-launchers "rocket launcher"
   ;set-default-shape grenade-launchers "grenade launcher"
@@ -479,13 +479,16 @@ Polygon -7500403 true true 180 165 195 225 180 225
 rocket launcher
 true
 0
-Rectangle -7500403 true true 105 150 120 195
-Rectangle -7500403 true true 165 150 180 180
-Rectangle -7500403 true true 75 105 225 150
-Rectangle -7500403 true true 180 90 195 105
-Polygon -7500403 false true 120 180 150 165 150 150 120 150
-Line -7500403 true 120 150 135 165
-Polygon -7500403 true true 225 105 255 120 255 135 225 150
+Rectangle -7500403 true true 60 165 75 210
+Rectangle -7500403 true true 180 165 195 195
+Rectangle -7500403 true true 44 120 240 165
+Rectangle -7500403 true true 180 105 195 120
+Polygon -7500403 true true 240 120 269 126 269 159 240 165
+Circle -16777216 true false 182 108 10
+Line -7500403 true 187 108 187 123
+Line -7500403 true 182 113 192 113
+Polygon -7500403 false true 75 188 93 188 96 185 99 180 101 172 103 162 104 148 77 155 75 156
+Line -7500403 true 76 166 88 180
 
 sad buddy
 false
@@ -504,13 +507,17 @@ Line -16777216 false 132 118 138 110
 Circle -1 true false 183 130 26
 Circle -1 true false 95 189 32
 
-shotgun (wip)
+shotgun
 true
-0
-Rectangle -7500403 true true 150 120 270 150
+1
+Circle -7500403 false false 139 168 28
 Line -16777216 false 150 135 270 135
-Polygon -6459832 true false 180 135 195 165 120 165 105 135 180 135 181 137 182 137 197 167
-Polygon -6459832 true false 150 121 148 123 85 120 42 139 8 125 11 174 45 155 111 153 151 141
+Polygon -2674135 true true 121 136 121 18 149 18 150 137
+Polygon -6459832 true false 121 136 150 136 150 193 153 204 157 208 164 213 165 220 162 224 163 235 173 274 141 277 140 229 143 225 145 221 144 218 140 215 129 196 124 179
+Line -16777216 false 135 135 135 18
+Line -7500403 false 150 182 152 186
+Line -7500403 false 153 186 156 187
+Line -7500403 false 156 187 160 186
 
 sun
 false
