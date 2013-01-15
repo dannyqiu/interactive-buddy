@@ -36,7 +36,7 @@ to setup
   set-default-shape shotguns "shotgun"
   set-default-shape flame-throwers "flame thrower"
   set-default-shape rocket-launchers "rocket launcher"
-  ;set-default-shape grenade-launchers "grenade launcher"
+  set-default-shape grenade-launchers "grenade launcher"
   set-default-shape mines "mine"
   ;set-default-shape bombs "bomb"
   
@@ -293,7 +293,7 @@ CHOOSER
 Weapon
 Weapon
 "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" "Grenade Launcher" "Mines" "Bombs"
-5
+7
 
 SWITCH
 10
@@ -362,6 +362,14 @@ default
 true
 0
 Polygon -7500403 true true 150 5 40 250 150 205 260 250
+
+bomb
+true
+0
+Polygon -6459832 true false 148 115 150 100 157 92 166 87 176 85 185 85 195 89 204 97 202 102 198 102 195 99 190 94 181 92 169 93 163 95 159 98 155 106 153 117
+Circle -7500403 true true 108 108 85
+Rectangle -7500403 true true 143 98 164 112
+Polygon -2674135 true false 200 96 199 95 203 86 205 97 211 89 212 99 218 103 208 103 211 112 204 108 199 112 199 102 189 107 192 100 186 95 193 96 192 86
 
 buddy on fire
 false
