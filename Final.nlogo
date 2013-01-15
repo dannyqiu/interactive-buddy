@@ -35,8 +35,10 @@ to setup
   set-default-shape machine-guns "machine gun"
   set-default-shape shotguns "shotgun"
   ;set-default-shape flame-throwers "flame thrower"
-  ;set-default-shape rocket-launchers "rocket launcher"
+  set-default-shape rocket-launchers "rocket launcher"
   ;set-default-shape grenade-launchers "grenade launcher"
+  ;set-default-shape mines "mine"
+  ;set-default-shape bombs "bomb"
   
   set-default-shape bullets "bullet"
   set-default-shape fireballs "fire"
@@ -98,7 +100,7 @@ end
 
 to pistol-move
   ifelse (count pistols = 0) [change-weapon
-    create-pistols 1 [set size 7]] [
+    create-pistols 1 [set size 6]] [
   ask pistols [weapon-target]
   if mouse-down? [
     every .35 [ask pistols [hatch-bullets 1 [set size 3]]]]]
@@ -106,7 +108,7 @@ end
 
 to machine-gun-move
   ifelse (count machine-guns = 0) [change-weapon
-    create-machine-guns 1 [set size 7]] [
+    create-machine-guns 1 [set size 8.5]] [
   ask machine-guns [weapon-target]
   if mouse-down? [
     every .05 [ask machine-guns [hatch-bullets 1 [set size 3]]]]]
@@ -114,15 +116,15 @@ end
 
 to shotgun-move
   ifelse (count shotguns = 0) [change-weapon
-    create-shotguns 1 [set size 7]] [
+    create-shotguns 1 [set size 9]] [
   ask shotguns [weapon-target]
   if mouse-down? [
-    every .5 [ask shotguns [hatch-bullets 6 [set size 3 rt random 21 - 10]]]]]
+    every .65 [ask shotguns [hatch-bullets 6 [set size 3 rt random 21 - 10]]]]]
 end
 
 to flame-thrower-move
   ifelse (count flame-throwers = 0) [change-weapon
-    create-flame-throwers 1 [set size 7]] [
+    create-flame-throwers 1 [set size 10]] [
   ask flame-throwers [weapon-target]
   if mouse-down? [
     every .03 [ask flame-throwers [hatch-fireballs 2 [set size 4.5 
@@ -132,7 +134,7 @@ end
 
 to rocket-launcher-move
   ifelse (count rocket-launchers = 0) [change-weapon
-    create-rocket-launchers 1 [set size 7]] [
+    create-rocket-launchers 1 [set size 10]] [
   ask rocket-launchers [weapon-target]
   if mouse-down? [
     every 1 [ask rocket-launchers [hatch-rockets 1 [set size 7]]]]]
@@ -140,7 +142,7 @@ end
 
 to grenade-launcher-move
   ifelse (count grenade-launchers = 0) [change-weapon
-    create-grenade-launchers 1 [set size 7]] [
+    create-grenade-launchers 1 [set size 10]] [
   ask grenade-launchers [weapon-target]
   if mouse-down? [
     every .7 [ask grenade-launchers [hatch-grenades 1 [set size 5]]]]]
@@ -210,14 +212,14 @@ end
 to next-weapon
   set weapon-number position weapon weapons 
   set weapon-number (weapon-number + 1)
-  if weapon-number > 7 [set weapon-number 0]
+  if weapon-number > 9 [set weapon-number 0]
   set weapon item weapon-number weapons
 end
   
 to previous-weapon
   set weapon-number (position weapon weapons)
   set weapon-number (weapon-number - 1)
-  if weapon-number < 0 [set weapon-number 7]
+  if weapon-number < 0 [set weapon-number 9]
   set weapon item weapon-number weapons
 end
 @#$#@#$#@
@@ -290,7 +292,7 @@ CHOOSER
 Weapon
 Weapon
 "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" "Grenade Launcher" "Mines" "Bombs"
-7
+6
 
 SWITCH
 10
@@ -470,25 +472,27 @@ Line -7500403 true 142 147 148 155
 rocket
 true
 0
-Rectangle -7500403 true true 120 120 180 225
-Polygon -7500403 true true 120 120 135 75 165 75 180 120
-Circle -7500403 true true 135 60 30
-Polygon -7500403 true true 120 165 105 225 120 225
-Polygon -7500403 true true 180 165 195 225 180 225
+Rectangle -7500403 true true 120 105 180 225
+Polygon -7500403 true true 181 105 160 77 139 77 119 105
+Circle -7500403 true true 141 68 20
+Polygon -7500403 true true 120 180 105 225 120 225
+Polygon -7500403 true true 180 180 195 225 180 225
+Polygon -7500403 true true 119 105 140 77 161 77 181 105
+Circle -7500403 true true 139 68 20
 
 rocket launcher
 true
 0
-Rectangle -7500403 true true 60 165 75 210
-Rectangle -7500403 true true 180 165 195 195
-Rectangle -7500403 true true 44 120 240 165
-Rectangle -7500403 true true 180 105 195 120
-Polygon -7500403 true true 240 120 269 126 269 159 240 165
-Circle -16777216 true false 182 108 10
-Line -7500403 true 187 108 187 123
-Line -7500403 true 182 113 192 113
-Polygon -7500403 false true 75 188 93 188 96 185 99 180 101 172 103 162 104 148 77 155 75 156
-Line -7500403 true 76 166 88 180
+Rectangle -7500403 true true 165 225 210 240
+Rectangle -7500403 true true 165 105 195 120
+Rectangle -7500403 true true 120 60 165 256
+Rectangle -7500403 true true 105 105 120 120
+Polygon -7500403 true true 120 60 126 31 159 31 165 60
+Circle -16777216 true false 108 108 10
+Line -7500403 true 108 113 119 113
+Line -7500403 true 113 118 113 108
+Polygon -7500403 false true 188 225 188 207 185 204 180 201 172 199 162 197 148 196 155 223 156 225
+Line -7500403 true 166 224 180 212
 
 sad buddy
 false
@@ -510,30 +514,17 @@ Circle -1 true false 95 189 32
 shotgun
 true
 1
-Circle -7500403 false false 139 168 28
+Circle -7500403 false false 154 168 28
 Line -16777216 false 150 135 270 135
-Polygon -2674135 true true 121 136 121 18 149 18 150 137
-Polygon -6459832 true false 121 136 150 136 150 193 153 204 157 208 164 213 165 220 162 224 163 235 173 274 141 277 140 229 143 225 145 221 144 218 140 215 129 196 124 179
-Line -16777216 false 135 135 135 18
-Line -7500403 false 150 182 152 186
-Line -7500403 false 153 186 156 187
-Line -7500403 false 156 187 160 186
-
-sun
-false
-0
-Circle -7500403 true true 75 75 150
-Polygon -7500403 true true 300 150 240 120 240 180
-Polygon -7500403 true true 150 0 120 60 180 60
-Polygon -7500403 true true 150 300 120 240 180 240
-Polygon -7500403 true true 0 150 60 120 60 180
-Polygon -7500403 true true 60 195 105 240 45 255
-Polygon -7500403 true true 60 105 105 60 45 45
-Polygon -7500403 true true 195 60 240 105 255 45
-Polygon -7500403 true true 240 195 195 240 255 255
+Polygon -2674135 true true 136 136 136 18 164 18 165 137
+Polygon -6459832 true false 136 136 165 136 165 193 168 204 172 208 179 213 180 220 177 224 178 235 188 274 156 277 155 229 158 225 160 221 159 218 155 215 144 196 139 179
+Line -16777216 false 150 135 150 18
+Line -7500403 false 165 182 167 186
+Line -7500403 false 168 186 171 187
+Line -7500403 false 171 187 175 186
 
 @#$#@#$#@
-NetLogo 5.0.2
+NetLogo 5.0.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
