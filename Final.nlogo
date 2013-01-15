@@ -34,10 +34,10 @@ to setup
   set-default-shape pistols "pistol"
   set-default-shape machine-guns "machine gun"
   set-default-shape shotguns "shotgun"
-  ;set-default-shape flame-throwers "flame thrower"
+  set-default-shape flame-throwers "flame thrower"
   set-default-shape rocket-launchers "rocket launcher"
   ;set-default-shape grenade-launchers "grenade launcher"
-  ;set-default-shape mines "mine"
+  set-default-shape mines "mine"
   ;set-default-shape bombs "bomb"
   
   set-default-shape bullets "bullet"
@@ -45,7 +45,7 @@ to setup
   set-default-shape rockets "rocket"
   set-default-shape grenades "grenade"
   
-  ;set-default-shape explosions "explosion"
+  set-default-shape explosions "explosion"
   
   set weapons (list "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" "Grenade Launcher" "Mines" "Bombs")
 end
@@ -172,7 +172,8 @@ end
 to rocket-move
   ask rockets [
     if any? buddies in-radius 4 [
-      hatch-explosions 1 [set explosion-timer 39]
+      hatch-explosions 1 [set explosion-timer 49
+                          set heading random 360]
       die]
     ifelse can-move? 1.2 [jump 1.2] [die]]
 end
@@ -180,7 +181,7 @@ end
 to buddy-effects
   ask buddies [
     if flame-timer > 0 [
-      ;set shape "buddy on fire"
+      set shape "buddy on fire"
       set flame-timer (flame-timer - .5)]]
 end
 
@@ -200,8 +201,8 @@ end
 
 to explosion-fade
   ask explosions [set size explosion-timer
-                  set color (scale-color red explosion-timer 39 0)
-                  set explosion-timer (explosion-timer - 1)
+                  set color (scale-color red explosion-timer 49 0)
+                  set explosion-timer (explosion-timer - 1.5)
                   if explosion-timer <= 0 [die]]
 end
 
@@ -255,7 +256,7 @@ BUTTON
 55
 129
 88
-NIL
+Setup
 setup
 NIL
 1
@@ -292,7 +293,7 @@ CHOOSER
 Weapon
 Weapon
 "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" "Grenade Launcher" "Mines" "Bombs"
-6
+5
 
 SWITCH
 10
@@ -362,11 +363,45 @@ true
 0
 Polygon -7500403 true true 150 5 40 250 150 205 260 250
 
+buddy on fire
+false
+10
+Polygon -2674135 true false 145 244 170 241 195 235 220 220 240 198 251 148 254 91 258 29 215 87 189 20 147 68 101 13 88 78 52 31 50 131 67 197 77 224 107 243
+Circle -13345367 true true 108 131 85
+Circle -13345367 true true 109 130 85
+Circle -1184463 true false 123 80 54
+Circle -1 true false 91 130 26
+Circle -1 true false 173 189 32
+Circle -2674135 true false 156 91 8
+Circle -2674135 true false 136 91 8
+Line -16777216 false 162 110 139 110
+Line -16777216 false 138 110 161 110
+Line -16777216 false 168 118 162 110
+Line -16777216 false 132 118 138 110
+Circle -1 true false 183 130 26
+Circle -1 true false 95 189 32
+
 bullet
 true
 0
 Rectangle -7500403 true true 135 135 165 180
 Circle -7500403 true true 135 120 30
+
+explosion
+true
+0
+Polygon -7500403 true true 243 176 183 146 183 206
+Polygon -7500403 true true 155 85 125 145 185 145
+Polygon -7500403 true true 158 267 128 207 188 207
+Polygon -7500403 true true 70 175 130 145 130 205
+Polygon -7500403 true true 112 176 157 221 97 236
+Polygon -7500403 true true 104 181 149 136 89 121
+Polygon -7500403 true true 159 133 204 178 219 118
+Polygon -7500403 true true 202 171 157 216 217 231
+Circle -7500403 true true 113 135 76
+Polygon -1184463 true false 119 163 100 134 133 141 151 108 175 141 208 128 195 159 219 173 197 189 208 214 182 205 164 245 148 219 111 221 117 189 88 174
+Polygon -955883 true false 142 145 150 121 165 147 192 138 184 159 203 171 191 185 200 206 179 202 164 234 147 210 120 211 128 186 99 175 127 163 104 139 141 150
+Polygon -2674135 true false 147 150 151 132 161 155 184 144 176 161 195 171 183 184 194 200 176 194 166 222 154 203 131 206 136 186 112 176 135 166 112 145
 
 feather
 true
@@ -419,6 +454,25 @@ Polygon -7500403 true true 154 164 175 150 175 51 145 50 144 158
 Polygon -7500403 true true 123 131 103 144 104 166 126 181 146 163 153 169 181 149 210 145 210 72 241 147 240 207 195 246 130 247 53 201 60 110 123 99
 Polygon -7500403 true true 178 146 178 51 207 51 206 142
 
+flame thrower
+true
+3
+Line -7500403 false 180 241 151 214
+Rectangle -2674135 true false 145 106 159 218
+Polygon -6459832 true true 158 129 203 110 219 102 220 35 202 26 203 19 189 15 184 25 195 34 199 30 208 37 209 91 209 97 155 119
+Polygon -1 true false 145 188 149 197 163 201 163 219 196 220 196 201 214 188 216 169 214 146 199 119 200 106 171 106 156 106 154 117 135 122 139 192
+Polygon -6459832 true true 133 30 145 37 158 39 171 40 184 31 178 87 130 85
+Polygon -6459832 true true 150 80 130 124 130 219 147 218 147 118 163 83
+Polygon -2674135 true false 130 146 213 143 208 132 130 134 129 129
+Polygon -2674135 true false 130 183 214 187 217 175 130 174
+Polygon -2674135 true false 146 217 130 217 124 223 117 227 113 238 113 255 127 280 139 278 154 299 169 292 149 269 170 247 169 231
+Polygon -2674135 false false 169 249 184 271 165 288 144 271 151 244
+Line -2674135 false 160 259 164 270
+Line -2674135 false 165 270 171 276
+Line -7500403 false 172 251 180 242
+Line -7500403 false 173 255 183 243
+Line -7500403 false 184 242 158 219
+
 grenade
 true
 0
@@ -435,6 +489,20 @@ Line -16777216 false 105 150 195 150
 Line -16777216 false 105 165 195 165
 Line -16777216 false 120 180 180 180
 Circle -7500403 false true 160 72 30
+
+grenade launcher
+true
+3
+Circle -7500403 false false 139 168 28
+Polygon -7500403 true false 121 136 121 18 149 18 150 137
+Polygon -6459832 true true 121 136 150 136 150 193 153 204 157 208 164 213 165 220 162 224 163 235 173 274 141 277 140 229 143 225 145 221 144 218 140 215 129 196 124 179
+Line -16777216 false 135 135 135 18
+Line -7500403 false 150 182 152 186
+Line -7500403 false 153 186 156 187
+Line -7500403 false 156 187 160 186
+Rectangle -7500403 false false 90 60 135 75
+Line -7500403 false 105 75 105 60
+Line -7500403 false 90 66 120 66
 
 happy buddy
 false
@@ -460,6 +528,13 @@ Polygon -7500403 true true 125 113 129 79 135 63 137 39 141 35 141 9 147 9 149 5
 Polygon -7500403 false true 154 169 175 175 175 170 174 166 172 162 169 158 165 154 160 151 154 149
 Line -7500403 true 156 166 163 164
 Line -7500403 true 167 160 162 164
+
+mine
+true
+0
+Circle -7500403 true true 75 75 150
+Circle -2674135 true false 116 116 67
+Circle -10899396 true false 135 135 30
 
 pistol
 true
