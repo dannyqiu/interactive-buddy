@@ -10,24 +10,27 @@ breed [shotguns shotgun]
 breed [flame-throwers flame-thrower]
 breed [rocket-launchers rocket-launcher]
 breed [grenade-launchers grenade-launcher]
-breed [mines mine]
-breed [bombs bomb]
+breed [hands hand]
 
 breed [bullets bullet]
 breed [fireballs fireball]
 breed [grenades grenade]
 breed [rockets rocket]
+breed [mines mine]
+breed [bombs bomb]
 
 breed [explosions explosion]
 
-buddies-own [flame-timer]
-fireballs-own [extinguish]
+buddies-own [flame-timer buddy-speed]
+fireballs-own [extinguish-timer]
 explosions-own [explosion-timer]
+grenades-own [grenade-speed]
+bombs-own [bomb-timer]
 
 to setup
   ca
   ask patches with [count neighbors != 8] [set pcolor blue]
-  create-buddies 1 [set heading 0 set shape "sad buddy" set size 15]
+  create-buddies 1 [set heading 0 set shape "sad buddy" set size 3]
   
   set-default-shape tickles "feather"
   set-default-shape punches "fist"
@@ -38,7 +41,7 @@ to setup
   set-default-shape rocket-launchers "rocket launcher"
   set-default-shape grenade-launchers "grenade launcher"
   set-default-shape mines "mine"
-  ;set-default-shape bombs "bomb"
+  set-default-shape bombs "bomb"
   
   set-default-shape bullets "bullet"
   set-default-shape fireballs "fire"
@@ -51,7 +54,7 @@ to setup
 end
 
 to play
-  if Gravity = true [ask buddies [if ycor > (min-pycor + size * .27) [setxy xcor ycor - .065]]]
+  ask buddies [gravity-move]
   if weapon = "Tickle" [tickle-move]
   if weapon = "Punch" [punch-move]
   if weapon = "Pistol" [pistol-move]
@@ -64,7 +67,9 @@ to play
   bullet-move
   fireball-move
   rocket-move
-  ;grenade-move
+  grenade-move
+  mine-move
+  bomb-move
   
   buddy-effects
   explosion-fade
@@ -73,79 +78,97 @@ end
 
 to tickle-move
   ifelse (count tickles = 0) [change-weapon
-    create-tickles 1 [set size 6]] [
+    create-tickles 1 [set size 2]] [
   ask tickles [weapon-target
-    if any? buddies in-radius 3.5 [
+    if any? buddies in-radius 1.5 [
       ask buddies [
         set shape "happy buddy"
         face myself
         set heading (heading + 180)
-        if [count patches in-radius 2 with [pcolor = blue]] of patch-ahead 2 = 0 [fd 1]]]]]
+        if [count patches in-radius 1 with [pcolor = blue]] of patch-ahead 1 = 0 [fd 1]]]]]
 end
 
 to punch-move
   ifelse (count punches = 0) [change-weapon
-    create-punches 1 [set size 5]] [
+    create-punches 1 [set size 2]] [
   every .2 [set mouse-oldx mouse-xcor set mouse-oldy mouse-ycor]
   ask punches [weapon-target
-    if any? buddies in-radius 4 [  
+    if any? buddies in-radius 2 [  
       set mouse-speed (sqrt ((square (mouse-xcor - mouse-oldx)) + (square (mouse-ycor - mouse-oldy)))) / .5
       ask buddies [
         set shape "sad buddy"
         face myself 
-        set heading (heading + 180)
-        repeat (mouse-speed * 1.5) [ifelse [any? patches in-radius 2 with [pcolor = blue]] of patch-ahead 2
-          [set heading (- heading)] [fd .4 wait .0035]]]]]]
+        set heading ([heading] of myself) 
+        set buddy-speed (buddy-speed + mouse-speed * 10)]]]]
 end
 
 to pistol-move
   ifelse (count pistols = 0) [change-weapon
-    create-pistols 1 [set size 6]] [
+    create-pistols 1 [set size 2.5]] [
   ask pistols [weapon-target]
   if mouse-down? [
-    every .35 [ask pistols [hatch-bullets 1 [set size 3]]]]]
+    every .35 [ask pistols [hatch-bullets 1 [set size 1.5]]]]]
 end
 
 to machine-gun-move
   ifelse (count machine-guns = 0) [change-weapon
-    create-machine-guns 1 [set size 8.5]] [
+    create-machine-guns 1 [set size 3]] [
   ask machine-guns [weapon-target]
   if mouse-down? [
-    every .05 [ask machine-guns [hatch-bullets 1 [set size 3]]]]]
+    every .05 [ask machine-guns [hatch-bullets 1 [set size 1.5]]]]]
 end
 
 to shotgun-move
   ifelse (count shotguns = 0) [change-weapon
-    create-shotguns 1 [set size 9]] [
+    create-shotguns 1 [set size 3]] [
   ask shotguns [weapon-target]
   if mouse-down? [
-    every .65 [ask shotguns [hatch-bullets 6 [set size 3 rt random 21 - 10]]]]]
+    every .65 [ask shotguns [hatch-bullets 6 [set size 1.5 rt random 17 - 8]]]]]
 end
 
 to flame-thrower-move
   ifelse (count flame-throwers = 0) [change-weapon
-    create-flame-throwers 1 [set size 10]] [
+    create-flame-throwers 1 [set size 4.3]] [
   ask flame-throwers [weapon-target]
   if mouse-down? [
-    every .03 [ask flame-throwers [hatch-fireballs 2 [set size 4.5 
-                                                      set heading (heading - 10 + random 21)
-                                                      set extinguish 25]]]]]
+    every .03 [ask flame-throwers [
+        hatch-fireballs (random 3) + 1 [
+          set size 1.5 
+          set heading (heading - 10 + random 21)
+          set extinguish-timer 25]]]]]
 end
 
 to rocket-launcher-move
   ifelse (count rocket-launchers = 0) [change-weapon
-    create-rocket-launchers 1 [set size 10]] [
+    create-rocket-launchers 1 [set size 4.3]] [
   ask rocket-launchers [weapon-target]
   if mouse-down? [
-    every 1 [ask rocket-launchers [hatch-rockets 1 [set size 7]]]]]
+    every 1 [ask rocket-launchers [
+        hatch-rockets 1 [set size 2.6]]]]]
 end
 
 to grenade-launcher-move
   ifelse (count grenade-launchers = 0) [change-weapon
-    create-grenade-launchers 1 [set size 10]] [
+    create-grenade-launchers 1 [set size 4]] [
   ask grenade-launchers [weapon-target]
   if mouse-down? [
-    every .7 [ask grenade-launchers [hatch-grenades 1 [set size 5]]]]]
+    every .7 [ask grenade-launchers [hatch-grenades 1 [set size 2.5]]]]]
+end
+
+to mines-create
+  ifelse (count hands = 0) [change-weapon
+    create-hands 1 [set size 3]] [
+  ask hands [weapon-target]
+  if mouse-down? [
+    every .5 [ask hands [hatch-mines 1 [set size 2.2]]]]]
+end
+
+to bombs-create
+  ifelse (count hands = 0) [change-weapon
+    create-hands 1 [set size 3]] [
+  ask hands [weapon-target]
+  if mouse-down? [
+    every .5 [ask hands [hatch-bombs 1 [set size 2.2 set bomb-timer 100]]]]]
 end
 
 to bullet-move
@@ -153,36 +176,85 @@ to bullet-move
     if any? buddies in-radius 3 [
       ask buddies [
         set shape "sad buddy"
-        face myself
-        set heading (heading + 180)
-        if [count patches in-radius 2 with [pcolor = blue]] of patch-ahead 2 = 0 [jump 2.5]]
-      die]
+        set heading ([heading] of myself)
+      	set buddy-speed (buddy-speed + 10)
+      die]]
     ifelse can-move? 1 [fd .5] [die]]
 end
 
 to fireball-move
   ask fireballs [
-    if any? buddies in-radius 4 [
-      ask buddies [set flame-timer (flame-timer + 1.5)]
+    if any? buddies in-radius 1 [
+      ask buddies [
+        set flame-timer (flame-timer + 1.5)
+        set buddy-speed (buddy-speed + 1)]
       die]
-    ifelse can-move? 1 [fd 1 set extinguish (extinguish - 1)] [die]
-    if extinguish <= 0 [die]]
+    ifelse can-move? 1 [fd .41 set extinguish-timer (extinguish-timer - 1)] [die]
+    if extinguish-timer <= 0 [die]]
 end
 
 to rocket-move
   ask rockets [
     if any? buddies in-radius 4 [
-      hatch-explosions 1 [set explosion-timer 49
-                          set heading random 360]
-      die]
+      ask buddies [
+        set buddy-speed (buddy-speed + 500)
+        set heading ([heading] of myself)]
+      explode 50]
     ifelse can-move? 1.2 [jump 1.2] [die]]
 end
+
+to grenade-move
+  ask grenades [
+    gravity-move
+    if any? buddies in-radius 2 [
+      ask buddies [
+        set buddy-speed (buddy-speed + 200)
+        set heading (- (180 - heading))]
+      explode 20]
+    if can-move? grenade-speed [
+      fd grenade-speed
+      set grenade-speed (grenade-speed * (3 / 5))]]
+end
+
+to mine-move
+  ask mines [
+    if any? buddies in-radius 2 [
+      ask buddies [
+        set buddy-speed (buddy-speed + 200)
+        set heading (- (180 - heading))]
+      explode 20]]
+end
+
+to bomb-move
+  ask bombs [
+    gravity-move
+    if bomb-timer <= 0 [
+      ask buddies in-radius 3 [
+        set buddy-speed (buddy-speed + 150)
+        set heading (- (180 - heading))]
+      explode 30]]
+end
+    
 
 to buddy-effects
   ask buddies [
     if flame-timer > 0 [
       set shape "buddy on fire"
-      set flame-timer (flame-timer - .5)]]
+      set flame-timer (flame-timer - .5)]
+    if buddy-speed > .1 [
+      if abs [pxcor] of patch-ahead 1 = max-pxcor[
+        set heading (- heading)]
+      if abs [pycor] of patch-ahead 1 = max-pycor[
+        set heading (180 - heading)]
+      fd 1
+      set buddy-speed (buddy-speed - (sqrt buddy-speed))]]
+end
+
+to explosion-fade
+  ask explosions [set size (explosion-timer / 3)
+                  set color (scale-color red explosion-timer 50 0)
+                  set explosion-timer (explosion-timer - 1.5)
+                  if explosion-timer <= 0 [die]]
 end
 
 to weapon-target
@@ -199,12 +271,15 @@ to change-weapon
                     breed != explosions] [die]
 end
 
-to explosion-fade
-  ask explosions [set size explosion-timer
-                  set color (scale-color red explosion-timer 49 0)
-                  set explosion-timer (explosion-timer - 1.5)
-                  if explosion-timer <= 0 [die]]
+to explode [strength]
+  hatch-explosions 1 [set explosion-timer strength
+                      set heading random 360]
+  die
 end
+
+to gravity-move
+  if Gravity = true [if ycor > (min-pycor + size * .27) [set ycor (ycor - .065)]]
+end 
 
 to-report square [x]
   report x * x
@@ -227,11 +302,11 @@ end
 GRAPHICS-WINDOW
 210
 10
-843
-510
-40
-30
-7.7
+964
+545
+15
+10
+24.0
 1
 10
 1
@@ -241,10 +316,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--40
-40
--30
-30
+-15
+15
+-10
+10
 0
 0
 1
@@ -293,7 +368,7 @@ CHOOSER
 Weapon
 Weapon
 "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" "Grenade Launcher" "Mines" "Bombs"
-7
+5
 
 SWITCH
 10
@@ -356,7 +431,7 @@ Made by Sayid Elsaieh and Danny Qiu
 
 ## CREDITS AND REFERENCES
 
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
+Credits to the bounce example in the NetLogo library
 @#$#@#$#@
 default
 true
@@ -515,19 +590,17 @@ Line -7500403 false 90 66 120 66
 happy buddy
 false
 10
-Circle -13345367 true true 108 131 85
-Circle -13345367 true true 107 131 85
-Circle -1184463 true false 123 80 54
-Circle -1 true false 91 130 26
-Circle -1 true false 173 189 32
-Circle -14835848 true false 155 94 8
-Line -16777216 false 162 122 139 122
-Line -16777216 false 133 112 138 122
-Circle -1 true false 183 130 26
-Circle -1 true false 95 189 32
-Line -16777216 false 138 122 161 122
-Line -16777216 false 167 112 162 122
-Circle -14835848 true false 137 94 8
+Circle -13345367 true true 60 101 182
+Circle -1184463 true false 98 10 104
+Line -16777216 false 181 80 167 94
+Line -16777216 false 166 95 134 95
+Circle -13345367 true true 124 39 14
+Line -16777216 false 119 80 133 94
+Circle -13345367 true true 162 39 14
+Circle -1 true false 40 108 64
+Circle -1 true false 54 226 66
+Circle -1 true false 196 108 64
+Circle -1 true false 180 226 66
 
 machine gun
 true
@@ -558,8 +631,8 @@ true
 Rectangle -7500403 true true 120 105 180 225
 Polygon -7500403 true true 181 105 160 77 139 77 119 105
 Circle -7500403 true true 141 68 20
-Polygon -7500403 true true 120 180 105 225 120 225
-Polygon -7500403 true true 180 180 195 225 180 225
+Polygon -7500403 true true 120 181 105 226 120 226
+Polygon -7500403 true true 180 181 195 226 180 226
 Polygon -7500403 true true 119 105 140 77 161 77 181 105
 Circle -7500403 true true 139 68 20
 
@@ -580,19 +653,17 @@ Line -7500403 true 166 224 180 212
 sad buddy
 false
 10
-Circle -13345367 true true 108 131 85
-Circle -13345367 true true 107 131 85
-Circle -1184463 true false 123 80 54
-Circle -1 true false 91 130 26
-Circle -1 true false 173 189 32
-Circle -2674135 true false 156 91 8
-Circle -2674135 true false 136 91 8
-Line -16777216 false 162 110 139 110
-Line -16777216 false 138 110 161 110
-Line -16777216 false 168 118 162 110
-Line -16777216 false 132 118 138 110
-Circle -1 true false 183 130 26
-Circle -1 true false 95 189 32
+Circle -13345367 true true 60 101 182
+Circle -1184463 true false 98 10 104
+Line -16777216 false 122 91 133 81
+Line -16777216 false 134 80 166 80
+Circle -13345367 true true 124 39 14
+Circle -13345367 true true 162 39 14
+Circle -1 true false 40 108 64
+Circle -1 true false 54 226 66
+Circle -1 true false 196 108 64
+Circle -1 true false 180 226 66
+Line -16777216 false 178 91 167 81
 
 shotgun
 true
