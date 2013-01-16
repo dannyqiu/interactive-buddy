@@ -40,17 +40,19 @@ to setup
   set-default-shape flame-throwers "flame thrower"
   set-default-shape rocket-launchers "rocket launcher"
   set-default-shape grenade-launchers "grenade launcher"
-  set-default-shape mines "mine"
-  set-default-shape bombs "bomb"
+  ;set-default-shape hands "hand"
   
   set-default-shape bullets "bullet"
   set-default-shape fireballs "fire"
   set-default-shape rockets "rocket"
   set-default-shape grenades "grenade"
+  set-default-shape mines "mine"
+  set-default-shape bombs "bomb"
   
   set-default-shape explosions "explosion"
   
-  set weapons (list "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" "Grenade Launcher" "Mines" "Bombs")
+  set weapons (list "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" 
+    "Grenade Launcher" "Mines" "Bombs")
 end
 
 to play
@@ -63,6 +65,8 @@ to play
   if weapon = "Flame Thrower" [flame-thrower-move]
   if weapon = "Rocket Launcher" [rocket-launcher-move]
   if weapon = "Grenade Launcher" [grenade-launcher-move]
+  if weapon = "Mines" [mines-create]
+  if weapon = "Bombs" [bombs-create]
   
   bullet-move
   fireball-move
@@ -94,7 +98,7 @@ to punch-move
   every .2 [set mouse-oldx mouse-xcor set mouse-oldy mouse-ycor]
   ask punches [weapon-target
     if any? buddies in-radius 2 [  
-      set mouse-speed (sqrt ((square (mouse-xcor - mouse-oldx)) + (square (mouse-ycor - mouse-oldy)))) / .5
+      set mouse-speed (sqrt ((square (mouse-xcor - mouse-oldx)) + (square (mouse-ycor - mouse-oldy)))) * 2
       ask buddies [
         set shape "sad buddy"
         face myself 
@@ -107,7 +111,8 @@ to pistol-move
     create-pistols 1 [set size 2.5]] [
   ask pistols [weapon-target]
   if mouse-down? [
-    every .35 [ask pistols [hatch-bullets 1 [set size 1.5]]]]]
+    every .35 [ask pistols [
+        hatch-bullets 1 [set size 1.5]]]]]
 end
 
 to machine-gun-move
@@ -115,7 +120,8 @@ to machine-gun-move
     create-machine-guns 1 [set size 3]] [
   ask machine-guns [weapon-target]
   if mouse-down? [
-    every .05 [ask machine-guns [hatch-bullets 1 [set size 1.5]]]]]
+    every .05 [ask machine-guns [
+        hatch-bullets 1 [set size 1.5]]]]]
 end
 
 to shotgun-move
@@ -123,7 +129,10 @@ to shotgun-move
     create-shotguns 1 [set size 3]] [
   ask shotguns [weapon-target]
   if mouse-down? [
-    every .65 [ask shotguns [hatch-bullets 6 [set size 1.5 rt random 17 - 8]]]]]
+    every .65 [ask shotguns [
+        hatch-bullets 6 [
+          set size 1.5 
+          rt random 17 - 8]]]]]
 end
 
 to flame-thrower-move
@@ -135,7 +144,7 @@ to flame-thrower-move
         hatch-fireballs (random 3) + 1 [
           set size 1.5 
           set heading (heading - 10 + random 21)
-          set extinguish-timer 25]]]]]
+          set extinguish-timer 22]]]]]
 end
 
 to rocket-launcher-move
@@ -152,7 +161,10 @@ to grenade-launcher-move
     create-grenade-launchers 1 [set size 4]] [
   ask grenade-launchers [weapon-target]
   if mouse-down? [
-    every .7 [ask grenade-launchers [hatch-grenades 1 [set size 2.5]]]]]
+    every .7 [ask grenade-launchers [
+        hatch-grenades 1 [
+          set size 2.6
+          set heading random 360]]]]]
 end
 
 to mines-create
@@ -160,7 +172,8 @@ to mines-create
     create-hands 1 [set size 3]] [
   ask hands [weapon-target]
   if mouse-down? [
-    every .5 [ask hands [hatch-mines 1 [set size 2.2]]]]]
+    every .5 [ask hands [
+        hatch-mines 1 [set size 2.2]]]]]
 end
 
 to bombs-create
@@ -168,7 +181,11 @@ to bombs-create
     create-hands 1 [set size 3]] [
   ask hands [weapon-target]
   if mouse-down? [
-    every .5 [ask hands [hatch-bombs 1 [set size 2.2 set bomb-timer 100]]]]]
+    every .5 [ask hands [
+        hatch-bombs 1 [
+          set size 3
+          set heading random 360
+          set bomb-timer 250]]]]]
 end
 
 to bullet-move
@@ -177,8 +194,8 @@ to bullet-move
       ask buddies [
         set shape "sad buddy"
         set heading ([heading] of myself)
-      	set buddy-speed (buddy-speed + 10)
-      die]]
+      	set buddy-speed (buddy-speed + 10)]
+      die]
     ifelse can-move? 1 [fd .5] [die]]
 end
 
@@ -187,7 +204,8 @@ to fireball-move
     if any? buddies in-radius 1 [
       ask buddies [
         set flame-timer (flame-timer + 1.5)
-        set buddy-speed (buddy-speed + 1)]
+        set buddy-speed (buddy-speed + .04)
+        set heading ([heading] of myself)]
       die]
     ifelse can-move? 1 [fd .41 set extinguish-timer (extinguish-timer - 1)] [die]
     if extinguish-timer <= 0 [die]]
@@ -199,7 +217,7 @@ to rocket-move
       ask buddies [
         set buddy-speed (buddy-speed + 500)
         set heading ([heading] of myself)]
-      explode 50]
+      explode 70]
     ifelse can-move? 1.2 [jump 1.2] [die]]
 end
 
@@ -210,7 +228,7 @@ to grenade-move
       ask buddies [
         set buddy-speed (buddy-speed + 200)
         set heading (- (180 - heading))]
-      explode 20]
+      explode 25]
     if can-move? grenade-speed [
       fd grenade-speed
       set grenade-speed (grenade-speed * (3 / 5))]]
@@ -232,7 +250,8 @@ to bomb-move
       ask buddies in-radius 3 [
         set buddy-speed (buddy-speed + 150)
         set heading (- (180 - heading))]
-      explode 30]]
+      explode 30]
+    set bomb-timer (bomb-timer - 1)]
 end
     
 
@@ -268,6 +287,8 @@ to change-weapon
                     breed != fireballs and
                     breed != grenades and
                     breed != rockets and
+                    breed != mines and
+                    breed != bombs and
                     breed != explosions] [die]
 end
 
@@ -368,7 +389,7 @@ CHOOSER
 Weapon
 Weapon
 "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" "Grenade Launcher" "Mines" "Bombs"
-5
+0
 
 SWITCH
 10
