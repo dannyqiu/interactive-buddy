@@ -1,5 +1,5 @@
 globals [mouse-oldx mouse-oldy mouse-speed
-  weapon-number weapons]
+  weapon-number weapons old-weapon]
 
 breed [buddies buddy]
 breed [tickles tickle]
@@ -11,6 +11,7 @@ breed [flame-throwers flame-thrower]
 breed [rocket-launchers rocket-launcher]
 breed [grenade-launchers grenade-launcher]
 breed [hands hand]
+breed [god-hands god-hand]
 
 breed [bullets bullet]
 breed [fireballs fireball]
@@ -41,6 +42,7 @@ to setup
   set-default-shape rocket-launchers "rocket launcher"
   set-default-shape grenade-launchers "grenade launcher"
   ;set-default-shape hands "hand"
+  ;set-default-shape gods-hand "god's hand"
   
   set-default-shape bullets "bullet"
   set-default-shape fireballs "fire"
@@ -52,7 +54,7 @@ to setup
   set-default-shape explosions "explosion"
   
   set weapons (list "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" 
-    "Grenade Launcher" "Mines" "Bombs")
+    "Grenade Launcher" "Mines" "Bombs" "God's Hand")
 end
 
 to play
@@ -67,6 +69,7 @@ to play
   if weapon = "Grenade Launcher" [grenade-launcher-move]
   if weapon = "Mines" [mines-create]
   if weapon = "Bombs" [bombs-create]
+  ;if weapon = "God's Hand" [god-hand-move]
   
   bullet-move
   fireball-move
@@ -77,6 +80,12 @@ to play
   
   buddy-effects
   explosion-fade
+  
+  if old-weapon != weapon [
+    clear-output
+    output-print "Your Current Weapon:" 
+    output-print weapon
+    set old-weapon weapon]
   wait .01
 end
 
@@ -108,7 +117,7 @@ end
 
 to pistol-move
   ifelse (count pistols = 0) [change-weapon
-    create-pistols 1 [set size 2.5]] [
+    create-pistols 1 [set size 3]] [
   ask pistols [weapon-target]
   if mouse-down? [
     every .35 [ask pistols [
@@ -117,7 +126,7 @@ end
 
 to machine-gun-move
   ifelse (count machine-guns = 0) [change-weapon
-    create-machine-guns 1 [set size 3]] [
+    create-machine-guns 1 [set size 4.5]] [
   ask machine-guns [weapon-target]
   if mouse-down? [
     every .05 [ask machine-guns [
@@ -126,7 +135,7 @@ end
 
 to shotgun-move
   ifelse (count shotguns = 0) [change-weapon
-    create-shotguns 1 [set size 3]] [
+    create-shotguns 1 [set size 4.4]] [
   ask shotguns [weapon-target]
   if mouse-down? [
     every .65 [ask shotguns [
@@ -149,7 +158,7 @@ end
 
 to rocket-launcher-move
   ifelse (count rocket-launchers = 0) [change-weapon
-    create-rocket-launchers 1 [set size 4.3]] [
+    create-rocket-launchers 1 [set size 4.7]] [
   ask rocket-launchers [weapon-target]
   if mouse-down? [
     every 1 [ask rocket-launchers [
@@ -193,7 +202,7 @@ to bullet-move
     if any? buddies in-radius 3 [
       ask buddies [
         set heading ([heading] of myself)
-      	set buddy-speed (buddy-speed + 10)]
+      	set buddy-speed (buddy-speed + 2)]
       die]
     ifelse can-move? 1 [fd .5] [die]]
 end
@@ -350,10 +359,10 @@ ticks
 30.0
 
 BUTTON
-63
-55
-129
-88
+19
+59
+85
+92
 Setup
 setup
 NIL
@@ -367,10 +376,10 @@ NIL
 1
 
 BUTTON
-65
-96
-128
-129
+92
+59
+201
+92
 Play
 play
 T
@@ -385,13 +394,13 @@ NIL
 
 CHOOSER
 27
-148
+116
 189
-193
+161
 Weapon
 Weapon
-"Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" "Grenade Launcher" "Mines" "Bombs"
-2
+"Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" "Grenade Launcher" "Mines" "Bombs" "God's Hand"
+6
 
 SWITCH
 10
@@ -400,17 +409,34 @@ SWITCH
 385
 Gravity
 Gravity
-1
+0
 1
 -1000
 
 BUTTON
-13
-205
-93
-238
+38
+202
+174
+235
 Next Weapon
 next-weapon
+NIL
+1
+T
+OBSERVER
+NIL
+D
+NIL
+NIL
+1
+
+BUTTON
+38
+167
+174
+200
+Previous Weapon
+previous-weapon
 NIL
 1
 T
@@ -421,22 +447,12 @@ NIL
 NIL
 1
 
-BUTTON
-96
-205
-198
-238
-Previous Weapon
-previous-weapon
-NIL
-1
-T
-OBSERVER
-NIL
-D
-NIL
-NIL
-1
+OUTPUT
+9
+253
+193
+311
+12
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -628,10 +644,10 @@ Circle -1 true false 180 226 66
 machine gun
 true
 0
-Polygon -7500403 true true 125 113 129 79 135 63 137 39 141 35 141 9 147 9 149 58 154 105 162 103 170 99 177 93 183 85 193 96 183 108 174 115 166 119 155 124 155 146 156 169 192 180 188 199 155 188 151 209 173 288 133 287 130 212 125 204
-Polygon -7500403 false true 154 169 175 175 175 170 174 166 172 162 169 158 165 154 160 151 154 149
-Line -7500403 true 156 166 163 164
-Line -7500403 true 167 160 162 164
+Polygon -7500403 true true 131 113 135 79 141 63 143 39 147 35 147 9 153 9 155 58 160 105 168 103 176 99 183 93 189 85 199 96 189 108 180 115 172 119 161 124 161 146 162 169 198 180 194 199 161 188 157 209 179 288 139 287 136 212 131 204
+Polygon -7500403 false true 160 170 181 176 181 171 180 167 178 163 175 159 171 155 166 152 160 150
+Line -7500403 true 162 165 169 163
+Line -7500403 true 172 160 167 164
 
 mine
 true
@@ -643,10 +659,10 @@ Circle -10899396 true false 135 135 30
 pistol
 true
 0
-Polygon -7500403 true true 91 52 115 45 139 51 139 166 239 195 238 239 149 216 142 220 137 225 135 234 135 241 90 244
-Polygon -7500403 false true 127 164 140 164 148 162 154 158 158 152 165 137 132 138
-Line -7500403 true 143 138 142 146
-Line -7500403 true 142 147 148 155
+Polygon -7500403 true true 121 51 145 44 169 50 169 165 269 194 268 238 179 215 172 219 167 224 165 233 165 240 120 243
+Polygon -7500403 false true 194 173 194 160 192 152 188 146 182 142 167 135 168 168
+Line -7500403 true 167 151 175 152
+Line -7500403 true 176 153 182 161
 
 rocket
 true
@@ -662,16 +678,16 @@ Circle -7500403 true true 139 68 20
 rocket launcher
 true
 0
-Rectangle -7500403 true true 165 225 210 240
-Rectangle -7500403 true true 165 105 195 120
-Rectangle -7500403 true true 120 60 165 256
-Rectangle -7500403 true true 105 105 120 120
-Polygon -7500403 true true 120 60 126 31 159 31 165 60
-Circle -16777216 true false 108 108 10
-Line -7500403 true 108 113 119 113
-Line -7500403 true 113 118 113 108
-Polygon -7500403 false true 188 225 188 207 185 204 180 201 172 199 162 197 148 196 155 223 156 225
-Line -7500403 true 166 224 180 212
+Rectangle -7500403 true true 173 224 218 239
+Rectangle -7500403 true true 173 105 203 120
+Rectangle -7500403 true true 128 60 173 256
+Rectangle -7500403 true true 113 105 128 120
+Polygon -7500403 true true 128 60 134 31 167 31 173 60
+Circle -16777216 true false 115 107 10
+Line -7500403 true 114 111 125 111
+Line -7500403 true 119 116 119 106
+Polygon -7500403 false true 203 225 203 207 200 204 195 201 187 199 177 197 163 196 170 223 171 225
+Line -7500403 true 181 224 195 212
 
 sad buddy
 false
@@ -692,7 +708,6 @@ shotgun
 true
 1
 Circle -7500403 false false 154 168 28
-Line -16777216 false 150 135 270 135
 Polygon -2674135 true true 136 136 136 18 164 18 165 137
 Polygon -6459832 true false 136 136 165 136 165 193 168 204 172 208 179 213 180 220 177 224 178 235 188 274 156 277 155 229 158 225 160 221 159 218 155 215 144 196 139 179
 Line -16777216 false 150 135 150 18
