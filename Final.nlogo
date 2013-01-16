@@ -192,7 +192,6 @@ to bullet-move
   ask bullets [
     if any? buddies in-radius 3 [
       ask buddies [
-        set shape "sad buddy"
         set heading ([heading] of myself)
       	set buddy-speed (buddy-speed + 10)]
       die]
@@ -257,9 +256,12 @@ end
 
 to buddy-effects
   ask buddies [
-    if flame-timer > 0 [
+    ifelse flame-timer > 0 [
       set shape "buddy on fire"
-      set flame-timer (flame-timer - .5)]
+      set size 6
+      set flame-timer (flame-timer - .5)] [
+      set shape "sad buddy"
+      set size 3]
     if buddy-speed > .1 [
       if abs [pxcor] of patch-ahead 1 = max-pxcor[
         set heading (- heading)]
@@ -389,7 +391,7 @@ CHOOSER
 Weapon
 Weapon
 "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" "Grenade Launcher" "Mines" "Bombs"
-0
+2
 
 SWITCH
 10
@@ -699,7 +701,7 @@ Line -7500403 false 168 186 171 187
 Line -7500403 false 171 187 175 186
 
 @#$#@#$#@
-NetLogo 5.0.3
+NetLogo 5.0.2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
