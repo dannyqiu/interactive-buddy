@@ -1,5 +1,6 @@
 globals [mouse-oldx mouse-oldy mouse-speed
-  weapon-number weapons old-weapon]
+  weapons weapons-bought weapon
+  weapon-number old-weapon]
 
 breed [buddies buddy]
 breed [tickles tickle]
@@ -56,7 +57,8 @@ to setup
   set-default-shape targets "target"
   
   set weapons (list "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" 
-    "Grenade Launcher" "Mines" "Bombs" "God's Hand")
+    "Grenade Launcher" "Mines" "Bombs" "God's Hand") 
+  set weapons-bought (list "Tickle")
 end
 
 to play
@@ -368,19 +370,28 @@ to-report emotions
         ifelse x < -20 [report "Sad"] [
           report "BORED"]]]]
 end
-  
+
+;to buy-weapon
+;  let x user-one-of "Which weapon would you like to buy?" [foreach [weapons-bought] remove ? weapons]
+;  lput x weapons-bought
+;end
+
+;to select-weapon
+;  set weapon user-one-of "Which weapon do you want to use?" [weapons-bought]
+;end
+
 to next-weapon
-  set weapon-number position weapon weapons 
+  set weapon-number position weapon weapons-bought
   set weapon-number (weapon-number + 1)
-  if weapon-number > 10 [set weapon-number 0]
-  set weapon item weapon-number weapons
+  if weapon-number > (length weapons-bought - 1) [set weapon-number 0]
+  set weapon item weapon-number weapons-bought
 end
-  
+
 to previous-weapon
-  set weapon-number (position weapon weapons)
+  set weapon-number position weapon weapons-bought
   set weapon-number (weapon-number - 1)
-  if weapon-number < 0 [set weapon-number 10]
-  set weapon item weapon-number weapons
+  if weapon-number < 0 [set weapon-number (length weapons-bought - 1)]
+  set weapon item weapon-number weapons-bought
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -443,16 +454,6 @@ P
 NIL
 NIL
 1
-
-CHOOSER
-26
-103
-188
-148
-Weapon
-Weapon
-"Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" "Grenade Launcher" "Mines" "Bombs" "God's Hand"
-6
 
 SWITCH
 23
