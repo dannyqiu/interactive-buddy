@@ -69,7 +69,7 @@ to play
   if weapon = "Grenade Launcher" [grenade-launcher-move]
   if weapon = "Mines" [mines-create]
   if weapon = "Bombs" [bombs-create]
-  ;if weapon = "God's Hand" [god-hand-move]
+  if weapon = "God's Hand" [god-hand-move]
   
   bullet-move
   fireball-move
@@ -95,7 +95,7 @@ to tickle-move
   ask tickles [weapon-target
     if any? buddies in-radius 1.5 [
       ask buddies [
-        set buddy-emotion (buddy-emotion + 1)
+        set buddy-emotion (buddy-emotion + 5)
         set heading ([heading] of myself)
         set buddy-speed (buddy-speed + 2)]]]]
 end
@@ -195,11 +195,29 @@ to bombs-create
           set bomb-timer 250]]]]]
 end
 
+to god-hand-move
+  ifelse (count god-hands = 0) [change-weapon
+    create-god-hands 1 [set size 4]] [
+  ask god-hands [weapon-target]
+    if mouse-down? [
+      every .03 [ask god-hands [
+        hatch-explosions 3 [
+          set explosion-timer 50
+          set heading random 360
+          fd 1.4]
+        if any? buddies in-radius 6 [
+          ask buddies [
+            set buddy-emotion (buddy-emotion - 1)
+            set buddy-speed (buddy-speed + 300)
+            face myself
+            set heading (heading + 180)]]]]]]
+end
+
 to bullet-move
   ask bullets [
     if any? buddies in-radius 3 [
       ask buddies [
-        set buddy-emotion (buddy-emotion - .07)
+        set buddy-emotion (buddy-emotion - .4)
         set heading ([heading] of myself)
       	set buddy-speed (buddy-speed + 2)]
       die]
@@ -210,12 +228,13 @@ to fireball-move
   ask fireballs [
     if any? buddies in-radius 1 [
       ask buddies [
-        set buddy-emotion (buddy-emotion - .05)
+        set buddy-emotion (buddy-emotion - .3)
         set flame-timer (flame-timer + 1.5)
         set buddy-speed (buddy-speed + .04)
         set heading ([heading] of myself)]
       die]
-    ifelse can-move? 1 [fd .41 set extinguish-timer (extinguish-timer - 1)] [die]
+    ifelse can-move? 1 [fd .41 
+      set extinguish-timer (extinguish-timer - 1)] [die]
     if extinguish-timer <= 0 [die]]
 end
 
@@ -237,7 +256,8 @@ to grenade-move
       ask buddies [
         set buddy-emotion (buddy-emotion - 7)
         set buddy-speed (buddy-speed + 200)
-        set heading (- (180 - heading))]
+        face myself
+        set heading (heading + 180)]
       explode 25]
     if can-move? grenade-speed [
       fd grenade-speed
@@ -250,7 +270,8 @@ to mine-move
       ask buddies [
         set buddy-emotion (buddy-emotion - 7)
         set buddy-speed (buddy-speed + 200)
-        set heading (- (180 - heading))]
+        face myself
+        set heading (heading + 180)]
       explode 20]]
 end
 
@@ -261,7 +282,8 @@ to bomb-move
       ask buddies in-radius 3 [
         set buddy-emotion (buddy-emotion - 7)
         set buddy-speed (buddy-speed + 150)
-        set heading (- (180 - heading))]
+        face myself
+        set heading (heading + 180)]
       explode 30]
     set bomb-timer (bomb-timer - 1)]
 end
@@ -272,18 +294,19 @@ to buddy-effects
     ifelse flame-timer > 0 [
       set shape "buddy on fire"
       set size 6
-      set flame-timer (flame-timer - .5)] [
-    set size 3]
+      set flame-timer (flame-timer - .5)
+      set buddy-speed (buddy-speed + .1)] [
+    set size 3
+    ifelse buddy-emotion > 10 [set shape "happy buddy"] [
+      ifelse buddy-emotion < -10 [set shape "sad buddy"] [
+        set shape "buddy"]]]
     if buddy-speed > .1 [
       if abs [pxcor] of patch-ahead 1 = max-pxcor[
         set heading (- heading)]
       if abs [pycor] of patch-ahead 1 = max-pycor[
         set heading (180 - heading)]
       fd 1
-      set buddy-speed (buddy-speed - (sqrt buddy-speed))]
-    ifelse buddy-emotion > 10 [set shape "happy buddy"] [
-      ifelse buddy-emotion < -10 [set shape "sad buddy"] [
-        set shape "buddy"]]]
+      set buddy-speed (buddy-speed - (sqrt buddy-speed))]]
 end
 
 to explosion-fade
@@ -316,7 +339,7 @@ to explode [strength]
 end
 
 to gravity-move
-  if Gravity = true [if ycor > (min-pycor + size * .27) [set ycor (ycor - .065)]]
+  if Gravity = true [if ycor > (min-pycor + size * .3) [set ycor (ycor - .065)]]
 end 
 
 to-report square [x]
@@ -325,22 +348,24 @@ end
 
 to-report emotions
   let x [buddy-emotion] of one-of buddies
-  ifelse x > 10 [report "Happy"] [
-      ifelse x < -10 [report "Sad"] [
-        report "BORED"]]
+  ifelse x > 300 [report "VERY Happy"] [
+    ifelse x > 20 [report "Happy"] [
+      ifelse x < -300 [report "VERY Sad"] [
+        ifelse x < -20 [report "Sad"] [
+          report "BORED"]]]]
 end
   
 to next-weapon
   set weapon-number position weapon weapons 
   set weapon-number (weapon-number + 1)
-  if weapon-number > 9 [set weapon-number 0]
+  if weapon-number > 10 [set weapon-number 0]
   set weapon item weapon-number weapons
 end
   
 to previous-weapon
   set weapon-number (position weapon weapons)
   set weapon-number (weapon-number - 1)
-  if weapon-number < 0 [set weapon-number 9]
+  if weapon-number < 0 [set weapon-number 10]
   set weapon item weapon-number weapons
 end
 @#$#@#$#@
@@ -413,13 +438,13 @@ CHOOSER
 Weapon
 Weapon
 "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" "Grenade Launcher" "Mines" "Bombs" "God's Hand"
-0
+10
 
 SWITCH
-10
-436
-113
-469
+23
+429
+126
+462
 Gravity
 Gravity
 0
@@ -468,10 +493,10 @@ OUTPUT
 12
 
 MONITOR
-60
-327
-159
-372
+56
+312
+155
+357
 Buddy's Emotion
 emotions
 17
