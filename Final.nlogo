@@ -322,6 +322,13 @@ end
 to-report square [x]
   report x * x
 end
+
+to-report emotions
+  let x [buddy-emotion] of one-of buddies
+  ifelse x > 10 [report "Happy"] [
+      ifelse x < -10 [report "Sad"] [
+        report "BORED"]]
+end
   
 to next-weapon
   set weapon-number position weapon weapons 
@@ -340,11 +347,11 @@ end
 GRAPHICS-WINDOW
 210
 10
-964
-545
+902
+503
 15
 10
-24.0
+22.0
 1
 10
 1
@@ -365,10 +372,10 @@ ticks
 30.0
 
 BUTTON
-19
-59
+14
+52
+80
 85
-92
 Setup
 setup
 NIL
@@ -382,10 +389,10 @@ NIL
 1
 
 BUTTON
-92
-59
-201
-92
+87
+52
+196
+85
 Play
 play
 T
@@ -399,10 +406,10 @@ NIL
 1
 
 CHOOSER
-27
-116
-189
-161
+26
+103
+188
+148
 Weapon
 Weapon
 "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" "Grenade Launcher" "Mines" "Bombs" "God's Hand"
@@ -410,9 +417,9 @@ Weapon
 
 SWITCH
 10
-352
+436
 113
-385
+469
 Gravity
 Gravity
 0
@@ -454,11 +461,22 @@ NIL
 1
 
 OUTPUT
-9
-253
-193
-311
+19
+244
+203
+302
 12
+
+MONITOR
+60
+327
+159
+372
+Buddy's Emotion
+emotions
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -736,7 +754,7 @@ Line -7500403 false 168 186 171 187
 Line -7500403 false 171 187 175 186
 
 @#$#@#$#@
-NetLogo 5.0.2
+NetLogo 5.0.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
