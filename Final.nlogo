@@ -1,6 +1,7 @@
 globals [mouse-oldx mouse-oldy mouse-speed
-  weapons weapons-bought weapon
-  weapon-number old-weapon]
+  weapon weapon-number old-weapon
+  weapons weapons-bought 
+  score money weapons-cost]
 
 breed [buddies buddy]
 breed [tickles tickle]
@@ -30,6 +31,10 @@ explosions-own [explosion-timer]
 grenades-own [grenade-speed]
 bombs-own [bomb-timer bomb-speed]
 
+to startup
+  set weapons-bought (list "Tickle")
+end
+
 to setup
   ca
   ask patches with [count neighbors != 8] [set pcolor blue]
@@ -57,7 +62,8 @@ to setup
   set-default-shape targets "target"
   
   set weapons (list "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" 
-    "Grenade Launcher" "Mines" "Bombs" "God's Hand") 
+    "Grenade Launcher" "Mines" "Bombs" "God's Hand")
+  set weapons-cost (list 0 50 200 500 350 800 2000 600 400 405 10000)
   set weapons-bought (list "Tickle")
   set weapon "Tickle"
 end
@@ -102,7 +108,9 @@ to tickle-move
       ask buddies [
         set buddy-emotion (buddy-emotion + 5)
         set heading ([heading] of myself)
-        set buddy-speed (buddy-speed + 2)]]]]
+        set buddy-speed (buddy-speed + 2)]
+      set score (score + 20)
+      set money (money + 2)]]]
 end
 
 to punch-move
@@ -115,7 +123,9 @@ to punch-move
       ask buddies [
         set buddy-emotion (buddy-emotion - 4)
         set heading ([heading] of myself)
-        set buddy-speed (buddy-speed + mouse-speed * 10)]]]]
+        set buddy-speed (buddy-speed + mouse-speed * 10)]
+      set score (score + 30)
+      set money (money + 3)]]]
 end
 
 to pistol-move
@@ -224,7 +234,8 @@ to god-hand-move
             set buddy-emotion (buddy-emotion - 1)
             set buddy-speed (buddy-speed + 300)
             face myself
-            set heading (heading + 180)]]]]]]
+            set heading (heading + 180)]
+          set score (score + 5)]]]]]
 end
 
 to bullet-move
@@ -234,6 +245,8 @@ to bullet-move
         set buddy-emotion (buddy-emotion - .4)
         set heading ([heading] of myself)
       	set buddy-speed (buddy-speed + 2)]
+      set score (score + 10)
+      set money (money + 1)
       die]
     ifelse can-move? 1 [fd .5] [die]]
 end
@@ -245,7 +258,9 @@ to fireball-move
         set buddy-emotion (buddy-emotion - .3)
         set flame-timer (flame-timer + 1.5)
         set buddy-speed (buddy-speed + .04)
-        set heading ([heading] of myself)]
+        set heading ([heading] of myself)] 
+      set score (score + 5)
+      set money (money + .5)
       die]
     ifelse can-move? 1 [fd .41 
       set extinguish-timer (extinguish-timer - 1)] [die]
@@ -259,6 +274,8 @@ to rocket-move
         set buddy-emotion (buddy-emotion - 20)
         set buddy-speed (buddy-speed + 500)
         set heading ([heading] of myself)]
+      set score (score + 150)
+      set money (money + 15)
       explode 70]
     ifelse can-move? 1.2 [jump 1.2] [die]]
 end
@@ -272,6 +289,8 @@ to grenade-move
         set buddy-speed (buddy-speed + 300)
         face myself
         set heading (heading + 180)]
+      set score (score + 50)
+      set money (money + 5)
       explode 25]
     if can-move? grenade-speed and ycor > (min-pycor + 1) [
       fd grenade-speed
@@ -286,6 +305,8 @@ to mine-move
         set buddy-speed (buddy-speed + 200)
         face myself
         set heading (heading + 180)]
+      set score (score + 50)
+      set money (money + 5)
       explode 20]]
 end
 
@@ -299,6 +320,8 @@ to bomb-move
         set buddy-speed (buddy-speed + 200)
         face myself
         set heading (heading + 180)]
+      set score (score + 60)
+      set money (money + 6)
       explode 30]
     if can-move? bomb-speed and ycor > (min-pycor + 1) [
       fd bomb-speed
@@ -373,9 +396,15 @@ to-report emotions
 end
 
 to buy-weapon
-  let weapons-not-bought (filter [not (member? ? weapons-bought)] weapons)
-  let bought-weapon (user-one-of "Which weapon would you like to buy?" weapons-not-bought)
-  set weapons-bought lput bought-weapon weapons-bought
+  let weapons-can-buy []
+  foreach weapons-cost [if ? < money [set weapons-can-buy lput (item (position ? weapons-cost) weapons) weapons-can-buy]]
+  let weapons-not-bought (filter [not (member? ? weapons-bought)] weapons-can-buy)
+  ifelse empty? weapons-not-bought [
+    let null user-one-of "Which weapon would you like to buy?" ["Not Enough Money To Buy Any Weapons"]] [
+    let bought-weapon (user-one-of "Which weapon would you like to buy?" weapons-not-bought)
+    set weapons-bought lput bought-weapon weapons-bought
+    set money (money - (item (position bought-weapon weapons) weapons-cost))
+    set weapon bought-weapon]
 end
 
 to select-weapon
@@ -458,10 +487,10 @@ NIL
 1
 
 SWITCH
-46
-373
-149
-406
+55
+304
+158
+337
 Gravity
 Gravity
 0
@@ -504,16 +533,16 @@ NIL
 
 OUTPUT
 13
-221
+218
 197
-269
+286
 12
 
 MONITOR
-48
-293
-147
-338
+57
+354
+156
+399
 Buddy's Emotion
 emotions
 17
@@ -553,6 +582,28 @@ NIL
 NIL
 NIL
 1
+
+MONITOR
+44
+409
+101
+454
+Money
+money
+17
+1
+11
+
+MONITOR
+110
+409
+167
+454
+Score
+score
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
