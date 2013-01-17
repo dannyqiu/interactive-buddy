@@ -170,12 +170,12 @@ to grenade-launcher-move
     create-grenade-launchers 1 [set size 4]] [
   ask grenade-launchers [
     setxy mouse-xcor mouse-ycor
-    facexy ([xcor] of one-of buddies) ycor]
+    facexy ([xcor] of one-of buddies) ([ycor] of one-of buddies + (distance one-of buddies) / 2)]
   if mouse-down? [
     every .7 [ask grenade-launchers [
         hatch-grenades 1 [
           set size 2.6
-          set grenade-speed (abs (xcor - [xcor] of one-of buddies) / 90)]]]]]
+          set grenade-speed (abs (xcor - [xcor] of one-of buddies) / 65)]]]]]
 end
 
 to mines-create
@@ -452,7 +452,7 @@ CHOOSER
 Weapon
 Weapon
 "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" "Grenade Launcher" "Mines" "Bombs" "God's Hand"
-9
+6
 
 SWITCH
 23
@@ -501,9 +501,9 @@ NIL
 
 OUTPUT
 19
-244
+242
 203
-302
+290
 12
 
 MONITOR
