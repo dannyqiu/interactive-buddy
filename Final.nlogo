@@ -21,12 +21,13 @@ breed [mines mine]
 breed [bombs bomb]
 
 breed [explosions explosion]
+breed [targets target]
 
 buddies-own [flame-timer buddy-speed buddy-emotion]
 fireballs-own [extinguish-timer]
 explosions-own [explosion-timer]
 grenades-own [grenade-speed]
-bombs-own [bomb-timer]
+bombs-own [bomb-timer bomb-speed]
 
 to setup
   ca
@@ -52,6 +53,7 @@ to setup
   set-default-shape bombs "bomb"
   
   set-default-shape explosions "explosion"
+  set-default-shape targets "target"
   
   set weapons (list "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" 
     "Grenade Launcher" "Mines" "Bombs" "God's Hand")
@@ -166,12 +168,14 @@ end
 to grenade-launcher-move
   ifelse (count grenade-launchers = 0) [change-weapon
     create-grenade-launchers 1 [set size 4]] [
-  ask grenade-launchers [weapon-target]
+  ask grenade-launchers [
+    setxy mouse-xcor mouse-ycor
+    facexy ([xcor] of one-of buddies) ycor]
   if mouse-down? [
     every .7 [ask grenade-launchers [
         hatch-grenades 1 [
           set size 2.6
-          set heading random 360]]]]]
+          set grenade-speed (abs (xcor - [xcor] of one-of buddies) / 90)]]]]]
 end
 
 to mines-create
@@ -188,13 +192,20 @@ to bombs-create
     create-hands 1 [set size 3]] [
   ask hands [weapon-target]
   if mouse-down? [
-    every .5 [ask hands [
-        hatch-bombs 1 [
-          set size 3
-          set heading random 360
-          set bomb-timer 250]]]]]
+    ask hands [
+      hatch-bombs 1 [
+        set size 3
+        set bomb-timer 330
+        hatch-targets 1 [
+          ht
+          create-link-from myself]
+        while [mouse-down?] [
+          set bomb-speed [link-length] of one-of links / 80
+          ask targets [setxy mouse-xcor mouse-ycor]]
+        face one-of targets
+        ask targets [die]]]]]
 end
-
+  
 to god-hand-move
   ifelse (count god-hands = 0) [change-weapon
     create-god-hands 1 [set size 4]] [
@@ -255,20 +266,20 @@ to grenade-move
     if any? buddies in-radius 2 [
       ask buddies [
         set buddy-emotion (buddy-emotion - 7)
-        set buddy-speed (buddy-speed + 200)
+        set buddy-speed (buddy-speed + 300)
         face myself
         set heading (heading + 180)]
       explode 25]
-    if can-move? grenade-speed [
+    if can-move? grenade-speed and ycor > (min-pycor + 1) [
       fd grenade-speed
-      set grenade-speed (grenade-speed * (3 / 5))]]
+      set grenade-speed (grenade-speed * 99 / 100)]]
 end
 
 to mine-move
   ask mines [
     if any? buddies in-radius 2 [
       ask buddies [
-        set buddy-emotion (buddy-emotion - 7)
+        set buddy-emotion (buddy-emotion - 6)
         set buddy-speed (buddy-speed + 200)
         face myself
         set heading (heading + 180)]
@@ -278,14 +289,17 @@ end
 to bomb-move
   ask bombs [
     gravity-move
+    set bomb-timer (bomb-timer - 1)
     if bomb-timer <= 0 [
       ask buddies in-radius 3 [
-        set buddy-emotion (buddy-emotion - 7)
-        set buddy-speed (buddy-speed + 150)
+        set buddy-emotion (buddy-emotion - 6)
+        set buddy-speed (buddy-speed + 200)
         face myself
         set heading (heading + 180)]
       explode 30]
-    set bomb-timer (bomb-timer - 1)]
+    if can-move? bomb-speed and ycor > (min-pycor + 1) [
+      fd bomb-speed
+      set bomb-speed (bomb-speed * 99 / 100)]]
 end
     
 
@@ -438,7 +452,7 @@ CHOOSER
 Weapon
 Weapon
 "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" "Grenade Launcher" "Mines" "Bombs" "God's Hand"
-10
+9
 
 SWITCH
 23
@@ -777,6 +791,13 @@ Line -16777216 false 150 135 150 18
 Line -7500403 false 165 182 167 186
 Line -7500403 false 168 186 171 187
 Line -7500403 false 171 187 175 186
+
+target
+true
+0
+Circle -2674135 false false 135 135 30
+Line -2674135 false 120 150 180 150
+Line -2674135 false 150 120 150 180
 
 @#$#@#$#@
 NetLogo 5.0.3
