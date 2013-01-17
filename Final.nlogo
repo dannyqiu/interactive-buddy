@@ -59,6 +59,7 @@ to setup
   set weapons (list "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" 
     "Grenade Launcher" "Mines" "Bombs" "God's Hand") 
   set weapons-bought (list "Tickle")
+  set weapon "Tickle"
 end
 
 to play
@@ -371,14 +372,15 @@ to-report emotions
           report "BORED"]]]]
 end
 
-;to buy-weapon
-;  let x user-one-of "Which weapon would you like to buy?" [foreach [weapons-bought] remove ? weapons]
-;  lput x weapons-bought
-;end
+to buy-weapon
+  let weapons-not-bought (filter [not (member? ? weapons-bought)] weapons)
+  let bought-weapon (user-one-of "Which weapon would you like to buy?" weapons-not-bought)
+  set weapons-bought lput bought-weapon weapons-bought
+end
 
-;to select-weapon
-;  set weapon user-one-of "Which weapon do you want to use?" [weapons-bought]
-;end
+to select-weapon
+  set weapon user-one-of "Which weapon do you want to use?" weapons-bought
+end
 
 to next-weapon
   set weapon-number position weapon weapons-bought
@@ -456,10 +458,10 @@ NIL
 1
 
 SWITCH
-23
-429
-126
-462
+46
+373
+149
+406
 Gravity
 Gravity
 0
@@ -467,10 +469,10 @@ Gravity
 -1000
 
 BUTTON
-38
-202
-174
-235
+117
+172
+198
+205
 Next Weapon
 next-weapon
 NIL
@@ -484,10 +486,10 @@ NIL
 1
 
 BUTTON
-38
-167
-174
-200
+14
+172
+115
+205
 Previous Weapon
 previous-weapon
 NIL
@@ -501,22 +503,56 @@ NIL
 1
 
 OUTPUT
-19
-242
-203
-290
+13
+221
+197
+269
 12
 
 MONITOR
-56
-312
-155
-357
+48
+293
+147
+338
 Buddy's Emotion
 emotions
 17
 1
 11
+
+BUTTON
+35
+101
+182
+134
+Buy A New Weapon
+buy-weapon
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+35
+135
+182
+168
+Choose A New Weapon
+select-weapon
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
