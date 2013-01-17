@@ -22,7 +22,7 @@ breed [bombs bomb]
 
 breed [explosions explosion]
 
-buddies-own [flame-timer buddy-speed]
+buddies-own [flame-timer buddy-speed buddy-emotion]
 fireballs-own [extinguish-timer]
 explosions-own [explosion-timer]
 grenades-own [grenade-speed]
@@ -95,10 +95,9 @@ to tickle-move
   ask tickles [weapon-target
     if any? buddies in-radius 1.5 [
       ask buddies [
-        set shape "happy buddy"
-        face myself
-        set heading (heading + 180)
-        if [count patches in-radius 1 with [pcolor = blue]] of patch-ahead 1 = 0 [fd 1]]]]]
+        set buddy-emotion (buddy-emotion + 1)
+        set heading ([heading] of myself)
+        set buddy-speed (buddy-speed + 2)]]]]
 end
 
 to punch-move
@@ -109,9 +108,8 @@ to punch-move
     if any? buddies in-radius 2 [  
       set mouse-speed (sqrt ((square (mouse-xcor - mouse-oldx)) + (square (mouse-ycor - mouse-oldy)))) * 2
       ask buddies [
-        set shape "sad buddy"
-        face myself 
-        set heading ([heading] of myself) 
+        set buddy-emotion (buddy-emotion - 4)
+        set heading ([heading] of myself)
         set buddy-speed (buddy-speed + mouse-speed * 10)]]]]
 end
 
@@ -201,6 +199,7 @@ to bullet-move
   ask bullets [
     if any? buddies in-radius 3 [
       ask buddies [
+        set buddy-emotion (buddy-emotion - .07)
         set heading ([heading] of myself)
       	set buddy-speed (buddy-speed + 2)]
       die]
@@ -211,6 +210,7 @@ to fireball-move
   ask fireballs [
     if any? buddies in-radius 1 [
       ask buddies [
+        set buddy-emotion (buddy-emotion - .05)
         set flame-timer (flame-timer + 1.5)
         set buddy-speed (buddy-speed + .04)
         set heading ([heading] of myself)]
@@ -223,6 +223,7 @@ to rocket-move
   ask rockets [
     if any? buddies in-radius 4 [
       ask buddies [
+        set buddy-emotion (buddy-emotion - 20)
         set buddy-speed (buddy-speed + 500)
         set heading ([heading] of myself)]
       explode 70]
@@ -234,6 +235,7 @@ to grenade-move
     gravity-move
     if any? buddies in-radius 2 [
       ask buddies [
+        set buddy-emotion (buddy-emotion - 7)
         set buddy-speed (buddy-speed + 200)
         set heading (- (180 - heading))]
       explode 25]
@@ -246,6 +248,7 @@ to mine-move
   ask mines [
     if any? buddies in-radius 2 [
       ask buddies [
+        set buddy-emotion (buddy-emotion - 7)
         set buddy-speed (buddy-speed + 200)
         set heading (- (180 - heading))]
       explode 20]]
@@ -256,6 +259,7 @@ to bomb-move
     gravity-move
     if bomb-timer <= 0 [
       ask buddies in-radius 3 [
+        set buddy-emotion (buddy-emotion - 7)
         set buddy-speed (buddy-speed + 150)
         set heading (- (180 - heading))]
       explode 30]
@@ -269,15 +273,17 @@ to buddy-effects
       set shape "buddy on fire"
       set size 6
       set flame-timer (flame-timer - .5)] [
-      set shape "sad buddy"
-      set size 3]
+    set size 3]
     if buddy-speed > .1 [
       if abs [pxcor] of patch-ahead 1 = max-pxcor[
         set heading (- heading)]
       if abs [pycor] of patch-ahead 1 = max-pycor[
         set heading (180 - heading)]
       fd 1
-      set buddy-speed (buddy-speed - (sqrt buddy-speed))]]
+      set buddy-speed (buddy-speed - (sqrt buddy-speed))]
+    ifelse buddy-emotion > 10 [set shape "happy buddy"] [
+      ifelse buddy-emotion < -10 [set shape "sad buddy"] [
+        set shape "buddy"]]]
 end
 
 to explosion-fade
@@ -400,7 +406,7 @@ CHOOSER
 Weapon
 Weapon
 "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" "Grenade Launcher" "Mines" "Bombs" "God's Hand"
-6
+0
 
 SWITCH
 10
@@ -484,6 +490,20 @@ Polygon -6459832 true false 148 115 150 100 157 92 166 87 176 85 185 85 195 89 2
 Circle -7500403 true true 108 108 85
 Rectangle -7500403 true true 143 98 164 112
 Polygon -2674135 true false 200 96 199 95 203 86 205 97 211 89 212 99 218 103 208 103 211 112 204 108 199 112 199 102 189 107 192 100 186 95 193 96 192 86
+
+buddy
+false
+10
+Circle -13345367 true true 60 101 182
+Circle -1184463 true false 98 10 104
+Line -16777216 false 177 84 122 84
+Circle -13345367 true true 124 39 14
+Circle -13345367 true true 162 39 14
+Circle -1 true false 40 108 64
+Circle -1 true false 54 226 66
+Circle -1 true false 196 108 64
+Circle -1 true false 180 226 66
+Line -16777216 false 123 84 178 84
 
 buddy on fire
 false
