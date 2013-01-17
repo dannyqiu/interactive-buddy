@@ -200,7 +200,7 @@ to bombs-create
         set size 3
         set bomb-timer 330
         hatch-targets 1 [
-          ht
+          set size 8
           create-link-from myself]
         while [mouse-down?] [
           set bomb-speed [link-length] of one-of links / 80
@@ -830,7 +830,7 @@ Line -7500403 false 168 186 171 187
 Line -7500403 false 171 187 175 186
 
 target
-true
+false
 0
 Circle -2674135 false false 135 135 30
 Line -2674135 false 120 150 180 150
