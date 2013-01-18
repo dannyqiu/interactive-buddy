@@ -226,7 +226,7 @@ to bow-move
     every .85 [ask bows [
         hatch-arrows 1 [
           set size 4
-          set stick-timer 1000]]]]]
+          set stick-timer 600]]]]]
 end
 
 to mine-create
@@ -355,6 +355,7 @@ to arrow-move
   ask arrows [
     ifelse hit? = true [
       move-to one-of buddies
+      bk .5
       set stick-timer (stick-timer - 1)
       get-moneyscore .01
       if stick-timer <= 0 [die]] [
@@ -364,8 +365,9 @@ to arrow-move
         set buddy-speed (buddy-speed + 20)
         set heading ([heading] of myself)]
       set hit? true
-      get-moneyscore 7.5]]
-    ifelse can-move? 1 [fd 1] [die]]
+      set shape "bloody arrow"
+      get-moneyscore 7.5]
+    ifelse can-move? 1 [fd 1] [die]]]
 end
 
 to mine-move
@@ -707,6 +709,12 @@ arrow
 true
 0
 Polygon -7500403 true true 143 269 133 298 134 259 145 242 145 171 132 179 150 147 168 179 155 171 155 242 166 259 167 298 157 269
+
+bloody arrow
+true
+0
+Polygon -7500403 true true 143 269 133 298 134 259 145 242 145 171 132 179 150 147 168 179 155 171 155 242 166 259 167 298 157 269
+Polygon -2674135 true false 150 147 132 179 146 169 145 190 155 190 154 169 168 179
 
 bomb
 true
