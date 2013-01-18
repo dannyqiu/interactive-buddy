@@ -3,6 +3,7 @@ globals [mouse-oldx mouse-oldy mouse-speed
   weapons weapons-bought 
   score money weapons-cost
   old-drawing]
+extensions [sound]
 
 breed [buddies buddy]
 breed [tickles tickle]
@@ -37,6 +38,12 @@ explosions-own [explosion-timer]
 grenades-own [grenade-speed]
 arrows-own [stick-timer hit?]
 bombs-own [bomb-timer bomb-speed]
+
+to startup
+  sound:play-sound "Media/Soundtrack.wav"
+  resize-world -15 -15 -10 -10
+  set-patch-size 22
+end
 
 to setup
   ca
@@ -106,12 +113,16 @@ to play
     output-print weapon
     set old-weapon weapon]
   if old-drawing != Location [cd
-    if Location = "City" [import-drawing "Locations/City.jpg"]
-    if Location = "Farm" [import-drawing "Locations/Farm.jpg"]
-    if Location = "School" [import-drawing "Locations/School.jpg"]
-    if Location = "Space" [import-drawing "Locations/Space.jpg"]
-    if Location = "Underwater" [import-drawing "Locations/Underwater.jpg"]
+    if Location = "City" [import-drawing "Media/City.jpg"]
+    if Location = "Farm" [import-drawing "Media/Farm.jpg"]
+    if Location = "School" [import-drawing "Media/School.jpg"]
+    if Location = "Space" [import-drawing "Media/Space.jpg"]
+    if Location = "Underwater" [import-drawing "Media/Underwater.jpg"]
     set old-drawing Location]
+  if timer > 170 [
+    sound:stop-music
+    reset-timer
+    sound:play-sound "Media/Soundtrack.wav"]
   wait .01
 end
 
@@ -444,8 +455,10 @@ to change-weapon
   ask turtles with [breed != buddies and 
                     breed != bullets and 
                     breed != fireballs and
-                    breed != grenades and
+                    breed != waters and
                     breed != rockets and
+                    breed != grenades and
+                    breed != arrows and
                     breed != mines and
                     breed != bombs and
                     breed != explosions] [die]
@@ -646,7 +659,7 @@ NIL
 T
 OBSERVER
 NIL
-NIL
+W
 NIL
 NIL
 1
@@ -663,7 +676,7 @@ NIL
 T
 OBSERVER
 NIL
-NIL
+S
 NIL
 NIL
 1
@@ -703,20 +716,33 @@ Location
 @#$#@#$#@
 ## WHAT IS IT?
 
-This is
 Made by Sayid Elsaieh and Danny Qiu
+This is our little version of the popular flash game, interactive buddy, recreated in netlogo. It is essentailly a room where you test out various weapons on the buddy to gain, which you use to buy more weapons. The weapons get prpgessively more and more dangerous, starting with a tickle, and ending with a God's hand. The buddies emotions also vary depending on how yo treat it.
 
 ## HOW IT WORKS
 
-(what rules the agents use to create the overall behavior of the model)
+[Left this for you Danny since you have a much betetr understanding how the code works than I do]
 
 ## HOW TO USE IT
 
-(how to use the model, including a description of each of the items in the Interface tab)
+You use the weapon you start with (a tickle) until you gain enough money to buy other weapons. You then use those various weapons to buy more weapons
+
+## WEAPON DESCRIPTIONS
+
+Tickle- Move the feather around to tickle the buddy. Increases happiness.
+Punch- Move the fist around to punch the buddy. 
+Pistol- Shoots one round towards the buddy. 
+Shotgun- Shoots 6 rounds that spreads out the farther it goes. 
+Mines- Place mines that detonate when touched. Not affected by gravity.
+Bombs- Place explosives that detnate after a few seconds. affected by gravity.
+Grenade Launcher- Shoot gernades that detonate when touched. affected by gravity.
+Rocket launcher- Shoots a rocket towards the buddy.
+Flamethrower- Shoots flames towards the buddy. Will ignite buddy and cause him to run.
+God's Hand- Will continually make explosions as long as the mouse button is held down.
 
 ## CREDITS AND REFERENCES
 
-Credits to the bounce example in the NetLogo library
+Credits to the **_bounce_** and **_link breeds_** examples in the NetLogo library for explaining basic concepts in keeping a turtle in a defined area and linking turtles to each other.
 @#$#@#$#@
 default
 true
