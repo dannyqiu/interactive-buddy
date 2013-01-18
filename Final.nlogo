@@ -1,7 +1,8 @@
 globals [mouse-oldx mouse-oldy mouse-speed
   weapon weapon-number old-weapon
   weapons weapons-bought 
-  score money weapons-cost]
+  score money weapons-cost
+  old-drawing]
 
 breed [buddies buddy]
 breed [tickles tickle]
@@ -104,6 +105,13 @@ to play
     output-print "Your Current Weapon:" 
     output-print weapon
     set old-weapon weapon]
+  if old-drawing != Location [cd
+    if Location = "City" [import-drawing "Locations/City.jpg"]
+    if Location = "Farm" [import-drawing "Locations/Farm.jpg"]
+    if Location = "School" [import-drawing "Locations/School.jpg"]
+    if Location = "Space" [import-drawing "Locations/Space.jpg"]
+    if Location = "Underwater" [import-drawing "Locations/Underwater.jpg"]
+    set old-drawing Location]
   wait .01
 end
 
@@ -531,9 +539,9 @@ ticks
 
 BUTTON
 14
-52
+36
 80
-85
+69
 Setup
 setup
 NIL
@@ -548,9 +556,9 @@ NIL
 
 BUTTON
 87
-52
+36
 196
-85
+69
 Play
 play
 T
@@ -564,10 +572,10 @@ NIL
 1
 
 SWITCH
-55
-304
-158
-337
+54
+263
+157
+296
 Gravity
 Gravity
 0
@@ -576,9 +584,9 @@ Gravity
 
 BUTTON
 117
-172
+156
 198
-205
+189
 Next Weapon
 next-weapon
 NIL
@@ -593,9 +601,9 @@ NIL
 
 BUTTON
 14
-172
+156
 115
-205
+189
 Previous Weapon
 previous-weapon
 NIL
@@ -610,16 +618,16 @@ NIL
 
 OUTPUT
 13
-218
+202
 197
-268
+252
 12
 
 MONITOR
-57
-354
-156
-399
+56
+313
+155
+358
 Buddy's Emotion
 emotions
 17
@@ -628,9 +636,9 @@ emotions
 
 BUTTON
 35
-101
+85
 182
-134
+118
 Buy A New Weapon
 buy-weapon
 NIL
@@ -645,9 +653,9 @@ NIL
 
 BUTTON
 35
-135
+119
 182
-168
+152
 Choose A New Weapon
 select-weapon
 NIL
@@ -661,10 +669,10 @@ NIL
 1
 
 MONITOR
-19
-409
-101
-454
+18
+368
+100
+413
 Money
 money
 1
@@ -672,15 +680,25 @@ money
 11
 
 MONITOR
-110
-409
-194
-454
+109
+368
+193
+413
 Score
 score
 0
 1
 11
+
+CHOOSER
+35
+443
+173
+488
+Location
+Location
+"Room" "City" "Farm" "School" "Space" "Underwater"
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
