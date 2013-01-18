@@ -47,9 +47,10 @@ end
 
 to setup
   ca
-  ask patches with [count neighbors != 8] [set pcolor blue]
+  ask patches with [count neighbors != 8] [set pcolor blue] ;Creates blue border around world
   create-buddies 1 [set heading 0 set shape "sad buddy" set size 3]
   
+  ;Assigns shapes for everything beforehand
   set-default-shape tickles "feather"
   set-default-shape punches "fist"
   set-default-shape pistols "pistol"
@@ -107,6 +108,8 @@ to play
   bomb-move
   explosion-fade
   
+  ;The old- variables are to allow NetLogo to skip over these portions of the code so that it doesn't 
+  ;need to constantly run the code until something changes.
   if old-weapon != weapon [
     clear-output
     output-print "Your Current Weapon:" 
@@ -119,13 +122,14 @@ to play
     if Location = "Space" [import-drawing "Media/Space.jpg"]
     if Location = "Underwater" [import-drawing "Media/Underwater.jpg"]
     set old-drawing Location]
-  if timer > 170 [
+  if timer > 165 [
     sound:stop-music
     reset-timer
     sound:play-sound "Media/Soundtrack.wav"]
   wait .01
 end
 
+;If the feather gets close to the buddy, the buddy will move away
 to tickle-move
   ifelse (count tickles = 0) [change-weapon
     create-tickles 1 [set size 2]] [
@@ -138,6 +142,7 @@ to tickle-move
       get-moneyscore 3]]]
 end
 
+;The code will calculate the speed at which the mouse is moving: (final position - intial position) / .2 seconds
 to punch-move
   ifelse (count punches = 0) [change-weapon
     create-punches 1 [set size 2]] [
@@ -193,6 +198,8 @@ to flame-thrower-move
         set extinguish-timer 22]]]]]
 end
 
+;Creates a link from the hose nozzle to a hidden turtle located at the top of the world. The link 
+;will act as a pipe and will change shape from left to right to make it seem more realistic
 to hose-move
   ifelse (count hoses = 0) [change-weapon
     create-hoses 1 [
@@ -224,6 +231,7 @@ to rocket-launcher-move
       hatch-rockets 1 [set size 2.6]]]]]
 end
 
+;The grenades will be aimed at a location about the buddy so that the trajectory will be a parabola
 to grenade-launcher-move
   ifelse (count grenade-launchers = 0) [change-weapon
     create-grenade-launchers 1 [set size 4]] [
@@ -257,6 +265,9 @@ to mine-create
       hatch-mines 1 [set size 2.2]]]]]
 end
 
+;Creates a target and links it to the hand. Then the target can be dragged around while the hand 
+;stays put. When the mouse is released, the target is not being dragged and the hand will create 
+;a bomb and set its speed to how far the target was from the hand
 to bomb-create
   ifelse (count hands = 0) [change-weapon
     create-hands 1 [set size 3]] [
@@ -279,6 +290,7 @@ to bomb-create
       set shape "hand"]]]]
 end
 
+;Just creates explosions that fade out and make it seem as if it leaves a trail
 to god-hand-move
   ifelse (count god-hands = 0) [change-weapon
     create-god-hands 1 [set size 4]] [
@@ -367,9 +379,11 @@ to grenade-move
       explode 25]
     if can-move? grenade-speed and ycor > (min-pycor + 1) [
       fd grenade-speed
-      set grenade-speed (grenade-speed * .989)]]
+      set grenade-speed (grenade-speed * .989)]] ;Speed of grenade is decreased to achieve a parabola
 end
 
+;The arrows will follow the buddy when it has hit it. The arrow will earn money for damaging, but will 
+;expire after a short period of time
 to arrow-move
   ask arrows [
     ifelse hit? = true [
@@ -415,7 +429,7 @@ to bomb-move
       explode 30]
     if can-move? bomb-speed and ycor > (min-pycor + 1) [
       fd bomb-speed
-      set bomb-speed (bomb-speed * .99)]]
+      set bomb-speed (bomb-speed * .99)]] ;Used to create parabola like in grenades
 end
 
 to buddy-effects
@@ -430,14 +444,15 @@ to buddy-effects
       ifelse buddy-emotion < -10 [set shape "sad buddy"] [
         set shape "buddy"]]]
     if buddy-speed > .1 [
-      if abs [pxcor] of patch-ahead 1 = max-pxcor[
+      if abs [pxcor] of patch-ahead 1 = max-pxcor[ ;Code was copied from the Bounce example
         set heading (- heading)]
       if abs [pycor] of patch-ahead 1 = max-pycor[
         set heading (180 - heading)]
       fd 1
-      set buddy-speed (buddy-speed - (sqrt buddy-speed))]]
+      set buddy-speed (buddy-speed - (sqrt buddy-speed))]] ;Buddy's speed decreases so that it doesn't keep moving
 end
 
+;The explosions will slowly fade out after a period of time
 to explosion-fade
   ask explosions [
     set size (explosion-timer / 3)
@@ -446,11 +461,13 @@ to explosion-fade
     if explosion-timer <= 0 [die]]
 end
 
+;Used to aim at the buddy with the weapons
 to weapon-target
   setxy mouse-xcor mouse-ycor
   if any? buddies [face one-of buddies]
 end
-  
+
+;Kills all other weapons so that a new weapon can be chosen
 to change-weapon
   ask turtles with [breed != buddies and 
                     breed != bullets and 
@@ -476,6 +493,7 @@ to get-moneyscore [amount]
   set money (money + amount)
 end
 
+;The universal gravitational force that affects buddies, grenades, and bombs
 to gravity-move
   if Gravity = true [if ycor > (min-pycor + size * .3) [set ycor (ycor - .065)]]
 end 
@@ -484,6 +502,7 @@ to-report square [x]
   report x * x
 end
 
+;Used to display the happiness/sadness of the buddy
 to-report emotions
   let x [buddy-emotion] of one-of buddies
   ifelse x > 300 [report "VERY Happy"] [
@@ -493,6 +512,8 @@ to-report emotions
           report "BORED"]]]]
 end
 
+;List processing so that it displays the weapons that you can afford and haven't bought when you 
+;click "Buy A New Weapon"
 to buy-weapon
   let weapons-can-buy []
   foreach weapons-cost [if ? < money [set weapons-can-buy lput (item (position ? weapons-cost) weapons) weapons-can-buy]]
@@ -509,6 +530,7 @@ to select-weapon
   set weapon user-one-of "Which weapon do you want to use?" weapons-bought
 end
 
+;Some more list processing so that you can change weapons using the keys on the keyboard
 to next-weapon
   set weapon-number position weapon weapons-bought
   set weapon-number (weapon-number + 1)
@@ -705,9 +727,9 @@ score
 
 CHOOSER
 35
-443
+438
 173
-488
+483
 Location
 Location
 "Room" "City" "Farm" "School" "Space" "Underwater"
@@ -716,33 +738,52 @@ Location
 @#$#@#$#@
 ## WHAT IS IT?
 
-Made by Sayid Elsaieh and Danny Qiu
-This is our little version of the popular flash game, interactive buddy, recreated in netlogo. It is essentailly a room where you test out various weapons on the buddy to gain, which you use to buy more weapons. The weapons get prpgessively more and more dangerous, starting with a tickle, and ending with a God's hand. The buddies emotions also vary depending on how yo treat it.
+**Interactive Buddy
+Made by Sayid Elsaieh and Danny Qiu**
+
+This is our little version of the popular flash game, [Interactive Buddy] (http://www.kongregate.com/games/shockvalue_/interactive-buddy?acomplete=my+inter), recreated in NetLogo. It is essentially a room where you test out various weapons on the buddy to gain money, in which you use to buy more weapons. The weapons get progressively better, starting with a feather (used for tickling) and ending with a God's hand. The buddies emotions also vary depending on how you treat it.
+
+Though this game may seem cruel, no real buddies were hurt in the process of making this game.
 
 ## HOW IT WORKS
 
-[Left this for you Danny since you have a much betetr understanding how the code works than I do]
+Generally, every weapon has it own procedure to move and create bullets, fireballs, water, etc... Then, there are other procedures that make the bullets, fireballs, water, etc... move. This creates an easy to follow code and a more stable code as a plus. Most of the explanation of how each weapon works is in the code's comments.
 
 ## HOW TO USE IT
 
-You use the weapon you start with (a tickle) until you gain enough money to buy other weapons. You then use those various weapons to buy more weapons
+This game is fairly intuitive with its minimal number of buttons to click. You might want to select the location from the chooser to match the place where you would like the events to take place.
 
-## WEAPON DESCRIPTIONS
+First, setup the game by pressing "`Setup`". Then, press "`Play`" to start the game.
 
-Tickle- Move the feather around to tickle the buddy. Increases happiness.
-Punch- Move the fist around to punch the buddy. 
-Pistol- Shoots one round towards the buddy. 
-Shotgun- Shoots 6 rounds that spreads out the farther it goes. 
-Mines- Place mines that detonate when touched. Not affected by gravity.
-Bombs- Place explosives that detnate after a few seconds. affected by gravity.
-Grenade Launcher- Shoot gernades that detonate when touched. affected by gravity.
-Rocket launcher- Shoots a rocket towards the buddy.
-Flamethrower- Shoots flames towards the buddy. Will ignite buddy and cause him to run.
-God's Hand- Will continually make explosions as long as the mouse button is held down.
+When you move your mouse into the screen, you will notice that your mouse cursor is now a feather. This is your default weapon. Bring your mouse close to the buddy on the screen and it will react. Various weapons will have various affects on the buddy.
+
+The more you interact with your buddy (hence the name of the game), the more money you will earn to buy better weapons. To buy a new weapon, hit "`Buy A New Weapon`" and to choose a new weapon, hit "`Choose A New Weapon`". A drop-down list will appear and select the weapon you desire from it.
+
+### Weapons to choose from:
+
+>  * Tickle - Move the feather around to tickle the buddy. Increases happiness.
+>  * Punch - Move the fist around to punch the buddy. Decreases happiness.
+>  * Pistol - Shoots one bullet at the buddy. Decreases happiness.
+>  * Machine Gun - Shoots bullets at a rapid rate towards the buddy. Decreases happiness.
+>  * Shotgun - Shoots six rounds at the buddy that spreads out the farther it goes. Decreases happiness.
+>  * Rocket launcher - Shoots a rocket towards the buddy. Decreases happiness by a LARGE amount.
+>  * Flamethrower - Shoots flames towards the buddy. Will ignite buddy and cause it to run. Happiness will decrease since the buddy is scared of pyromaniacs.
+>  * Hose - Sprays the buddy with clean water, straight from the water filtration system. The pureness makes the buddy happy and it stops fires.
+>  * Grenade Launcher - Shoots grenades that detonate when touched. Affected by gravity. Decreases happiness if explosion is near buddy.
+>  * Bow - Shoots an arrow at the buddy, causing extreme pain as the arrow is embedded into the buddy's skin.
+>  * Mines - Place mines that detonate when touched. Not affected by gravity. Decreases happiness if explosion is near buddy.
+>  * Bombs - Place explosives that detonate after a few seconds. Affected by gravity. Decreases happiness if explosion is near buddy.
+>  * God's Hand - Will continually make explosions as long as the mouse button is held down. God is punishing the buddy, causing extreme depression.
 
 ## CREDITS AND REFERENCES
 
-Credits to the **_bounce_** and **_link breeds_** examples in the NetLogo library for explaining basic concepts in keeping a turtle in a defined area and linking turtles to each other.
+First, we would like to thank the creators of the **_bounce_** and **_link breeds_** examples in the NetLogo library. They were extremely helpful in explaining basic concepts in keeping a turtle in a defined area and linking turtles to each other.
+
+Also, we would like to thank various students for their NetLogo projects done in the past, such as the one by [Jimmy Yang (Raiden)] (http://bert.stuy.edu/common/IntroToCompSci/NetLogoDemos/Jimmy-Yang-Raiden.html) for showing the potential of separating the tasks into multiple procedures and calling them all in the main procedure and others.
+
+As always, we would like to thank the NetLogo Dictionary for being a valuable resource to us during the course of this project.
+
+Lastly, we would like to thank Ms.Pascu for being a wonderful _Intro to Computer Science_ teacher. She has been amazing and has helped us numerous times during the course of the term.
 @#$#@#$#@
 default
 true
@@ -1064,9 +1105,9 @@ Line -2674135 false 150 120 150 180
 water
 true
 0
-Circle -7500403 true true 73 133 152
-Polygon -7500403 true true 219 181 205 152 185 120 174 95 163 64 156 37 149 7 147 166
-Polygon -7500403 true true 79 182 95 152 115 120 126 95 137 64 144 37 150 6 154 165
+Circle -7500403 true true 73 15 152
+Polygon -7500403 true true 219 119 205 148 185 180 174 205 163 236 156 263 149 293 147 134
+Polygon -7500403 true true 79 118 95 148 115 180 126 205 137 236 144 263 150 294 154 135
 
 @#$#@#$#@
 NetLogo 5.0.3
