@@ -203,22 +203,23 @@ end
 to bombs-create
   ifelse (count hands = 0) [change-weapon
     create-hands 1 [set size 3]] [
-  ask hands [weapon-target]
-  if mouse-down? [
+  if (count targets = 0) [ask hands [weapon-target]]
     ask hands [
-      hatch-bombs 1 [
-        set size 3
-        set bomb-timer 330
-        hatch-targets 1 [
-          set size 8
-          create-link-from myself]
-        while [mouse-down?] [
-          set bomb-speed [link-length] of one-of links / 80
-          ask targets [setxy mouse-xcor mouse-ycor]]
+      ifelse mouse-down? [
+        ifelse (count targets = 0) [
+          hatch-targets 1 [
+            set size 8
+            create-link-from myself]] [
+        ask targets [setxy mouse-xcor mouse-ycor]]] [
+      if any? targets [
         face one-of targets
+        hatch-bombs 1 [
+          set size 3
+          set bomb-timer 330
+          set bomb-speed [link-length] of one-of links / 80]
         ask targets [die]]]]]
 end
-  
+
 to god-hand-move
   ifelse (count god-hands = 0) [change-weapon
     create-god-hands 1 [set size 4]] [
