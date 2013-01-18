@@ -41,7 +41,7 @@ bombs-own [bomb-timer bomb-speed]
 
 to startup
   sound:play-sound "Media/Soundtrack.wav"
-  resize-world -15 -15 -10 -10
+  resize-world -15 15 -10 10
   set-patch-size 22
 end
 
