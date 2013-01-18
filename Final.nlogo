@@ -13,14 +13,15 @@ breed [flame-throwers flame-thrower]
 breed [hoses hose]
 breed [rocket-launchers rocket-launcher]
 breed [grenade-launchers grenade-launcher]
+breed [bows bow]
 breed [hands hand]
 breed [god-hands god-hand]
-
 breed [bullets bullet]
 breed [fireballs fireball]
 breed [waters water]
-breed [grenades grenade]
 breed [rockets rocket]
+breed [grenades grenade]
+breed [arrows arrow]
 breed [mines mine]
 breed [bombs bomb]
 
@@ -30,9 +31,10 @@ breed [targets target]
 
 buddies-own [flame-timer buddy-speed buddy-emotion]
 fireballs-own [extinguish-timer]
-waters-own [fade-timer]
+waters-own [dry-timer]
 explosions-own [explosion-timer]
 grenades-own [grenade-speed]
+arrows-own [stick-timer hit?]
 bombs-own [bomb-timer bomb-speed]
 
 to setup
@@ -49,6 +51,7 @@ to setup
   set-default-shape hoses "hose"
   set-default-shape rocket-launchers "rocket launcher"
   set-default-shape grenade-launchers "grenade launcher"
+  set-default-shape bows "bow"
   set-default-shape hands "hand"
   set-default-shape god-hands "god's hand"
   set-default-shape bullets "bullet"
@@ -56,14 +59,15 @@ to setup
   set-default-shape waters "water"
   set-default-shape rockets "rocket"
   set-default-shape grenades "grenade"
+  set-default-shape arrows "arrow"
   set-default-shape mines "mine"
   set-default-shape bombs "bomb"
   set-default-shape explosions "explosion"
   set-default-shape targets "target"
   
-  set weapons (list "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Hose" "Water Gun" "Rocket Launcher" 
-    "Grenade Launcher" "Mines" "Bombs" "God's Hand")
-  set weapons-cost (list 0 60 125 400 250 450 500 800 300 290 255 2500)
+  set weapons (list "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Hose" "Rocket Launcher" 
+    "Grenade Launcher" "Bow And Arrow" "Mines" "Bombs" "God's Hand")
+  set weapons-cost (list 0 60 125 320 250 450 500 800 300 350 290 255 2500)
   set weapon "Tickle"
   set weapons-bought (list "Tickle")
 end
@@ -79,18 +83,20 @@ to play
   if weapon = "Hose" [hose-move]
   if weapon = "Rocket Launcher" [rocket-launcher-move]
   if weapon = "Grenade Launcher" [grenade-launcher-move]
+  if weapon = "Bow And Arrow" [bow-move]
   if weapon = "Mines" [mine-create]
   if weapon = "Bombs" [bomb-create]
   if weapon = "God's Hand" [god-hand-move]
   
+  buddy-effects
   bullet-move
   fireball-move
   water-move
   rocket-move
   grenade-move
+  arrow-move
   mine-move
   bomb-move
-  buddy-effects
   explosion-fade
   
   if old-weapon != weapon [
@@ -110,8 +116,7 @@ to tickle-move
         set buddy-emotion (buddy-emotion + 5)
         set heading ([heading] of myself)
         set buddy-speed (buddy-speed + 2)]
-      set score (score + 30)
-      set money (money + 3)]]]
+      get-moneyscore 3]]]
 end
 
 to punch-move
@@ -125,8 +130,7 @@ to punch-move
         set buddy-emotion (buddy-emotion - 4)
         set heading ([heading] of myself)
         set buddy-speed (buddy-speed + mouse-speed * 10)]
-      set score (score + 40)
-      set money (money + 4)]]]
+      get-moneyscore 4]]]
 end
 
 to pistol-move
@@ -185,11 +189,11 @@ to hose-move
       set shape "hose right"] [
       set shape "hose left"]]
   if mouse-down? [
-    every .03 [ ask hoses [
+    every .03 [ask hoses [
       hatch-waters (random 5) + 10 [
         set size .3
         set heading (heading - 15 + random 31)
-        set fade-timer 40]]]]]
+        set dry-timer 40]]]]]
 end
   
 to rocket-launcher-move
@@ -212,6 +216,17 @@ to grenade-launcher-move
       hatch-grenades 1 [
         set size 2.6
         set grenade-speed (abs (xcor - [xcor] of one-of buddies) / sqrt (distance one-of buddies)) / 15]]]]]
+end
+
+to bow-move
+  ifelse (count bows = 0) [change-weapon
+    create-bows 1 [set size 5]] [
+  ask bows [weapon-target]
+  if mouse-down? [
+    every .85 [ask bows [
+        hatch-arrows 1 [
+          set size 4
+          set stick-timer 1000]]]]]
 end
 
 to mine-create
@@ -263,8 +278,7 @@ to god-hand-move
           set buddy-speed (buddy-speed + 300)
           face myself
           set heading (heading + 180)]
-        set score (score + 50)
-        set money (money + 5)]]]]]
+        get-moneyscore 5]]]]]
 end
 
 to bullet-move
@@ -274,8 +288,7 @@ to bullet-move
         set buddy-emotion (buddy-emotion - .4)
         set heading ([heading] of myself)
         	set buddy-speed (buddy-speed + 2)]
-      set score (score + 15)
-      set money (money + 1.5)
+      get-moneyscore 1.5
       die]
     ifelse can-move? 1 [fd .5] [die]]
 end
@@ -288,8 +301,7 @@ to fireball-move
         set flame-timer (flame-timer + 1.5)
         set buddy-speed (buddy-speed + .04)
         set heading ([heading] of myself)] 
-      set score (score + 5)
-      set money (money + .5)
+      get-moneyscore .5
       die]
     ifelse can-move? 1 [fd .41 
       set extinguish-timer (extinguish-timer - 1)] [die]
@@ -304,12 +316,11 @@ to water-move
         if flame-timer > 5 [set flame-timer (flame-timer - .5)]
         set buddy-speed (buddy-speed + .03)
         set heading ([heading] of myself)]
-      set score (score + 1)
-      set money (money + .1)
+      get-moneyscore .1
       die]
     ifelse can-move? .5 [fd .3
-      set fade-timer (fade-timer - 1)] [die]
-    if fade-timer <= 0 [die]]
+      set dry-timer (dry-timer - 1)] [die]
+    if dry-timer <= 0 [die]]
 end
 
 to rocket-move
@@ -319,8 +330,7 @@ to rocket-move
         set buddy-emotion (buddy-emotion - 20)
         set buddy-speed (buddy-speed + 500)
         set heading ([heading] of myself)]
-      set score (score + 200)
-      set money (money + 20)
+      get-moneyscore 20
       explode 70]
     ifelse can-move? 1.2 [jump 1.2] [die]]
 end
@@ -334,12 +344,28 @@ to grenade-move
         set buddy-speed (buddy-speed + 300)
         face myself
         set heading (heading + 180)]
-      set score (score + 100)
-      set money (money + 10)
+      get-moneyscore 10
       explode 25]
     if can-move? grenade-speed and ycor > (min-pycor + 1) [
       fd grenade-speed
       set grenade-speed (grenade-speed * .989)]]
+end
+
+to arrow-move
+  ask arrows [
+    ifelse hit? = true [
+      move-to one-of buddies
+      set stick-timer (stick-timer - 1)
+      get-moneyscore .01
+      if stick-timer <= 0 [die]] [
+    if any? buddies in-radius 2 [
+      ask buddies [
+        set buddy-emotion (buddy-emotion - 6)
+        set buddy-speed (buddy-speed + 20)
+        set heading ([heading] of myself)]
+      set hit? true
+      get-moneyscore 7.5]]
+    ifelse can-move? 1 [fd 1] [die]]
 end
 
 to mine-move
@@ -350,8 +376,7 @@ to mine-move
         set buddy-speed (buddy-speed + 200)
         face myself
         set heading (heading + 180)]
-      set score (score + 80)
-      set money (money + 8)
+      get-moneyscore 8
       explode 20]]
 end
 
@@ -365,8 +390,7 @@ to bomb-move
         set buddy-speed (buddy-speed + 200)
         face myself
         set heading (heading + 180)]
-      set score (score + 120)
-      set money (money + 12)
+      get-moneyscore 12
       explode 30]
     if can-move? bomb-speed and ycor > (min-pycor + 1) [
       fd bomb-speed
@@ -422,6 +446,11 @@ to explode [strength]
     set explosion-timer strength
     set heading random 360]
   die
+end
+
+to get-moneyscore [amount]
+  set score (score + (amount * 10))
+  set money (money + amount)
 end
 
 to gravity-move
@@ -674,6 +703,11 @@ true
 0
 Polygon -7500403 true true 150 5 40 250 150 205 260 250
 
+arrow
+true
+0
+Polygon -7500403 true true 143 269 133 298 134 259 145 242 145 171 132 179 150 147 168 179 155 171 155 242 166 259 167 298 157 269
+
 bomb
 true
 0
@@ -681,6 +715,12 @@ Polygon -6459832 true false 148 115 150 100 157 92 166 87 176 85 185 85 195 89 2
 Circle -7500403 true true 108 108 85
 Rectangle -7500403 true true 143 98 164 112
 Polygon -2674135 true false 200 96 199 95 203 86 205 97 211 89 212 99 218 103 208 103 211 112 204 108 199 112 199 102 189 107 192 100 186 95 193 96 192 86
+
+bow
+true
+0
+Polygon -7500403 false true 45 150 50 132 57 117 76 97 113 77 140 70 160 70 187 77 224 97 243 117 250 132 255 150
+Rectangle -7500403 true true 45 151 255 156
 
 buddy
 false
