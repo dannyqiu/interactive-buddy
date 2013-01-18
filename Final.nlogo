@@ -10,6 +10,7 @@ breed [pistols pistol]
 breed [machine-guns machine-gun]
 breed [shotguns shotgun]
 breed [flame-throwers flame-thrower]
+breed [hoses hose]
 breed [rocket-launchers rocket-launcher]
 breed [grenade-launchers grenade-launcher]
 breed [hands hand]
@@ -17,23 +18,22 @@ breed [god-hands god-hand]
 
 breed [bullets bullet]
 breed [fireballs fireball]
+breed [waters water]
 breed [grenades grenade]
 breed [rockets rocket]
 breed [mines mine]
 breed [bombs bomb]
 
 breed [explosions explosion]
+breed [anchors anchor]
 breed [targets target]
 
 buddies-own [flame-timer buddy-speed buddy-emotion]
 fireballs-own [extinguish-timer]
+waters-own [fade-timer]
 explosions-own [explosion-timer]
 grenades-own [grenade-speed]
 bombs-own [bomb-timer bomb-speed]
-
-to startup
-  set weapons-bought (list "Tickle")
-end
 
 to setup
   ca
@@ -46,26 +46,26 @@ to setup
   set-default-shape machine-guns "machine gun"
   set-default-shape shotguns "shotgun"
   set-default-shape flame-throwers "flame thrower"
+  set-default-shape hoses "hose"
   set-default-shape rocket-launchers "rocket launcher"
   set-default-shape grenade-launchers "grenade launcher"
   ;set-default-shape hands "hand"
   ;set-default-shape gods-hand "god's hand"
-  
   set-default-shape bullets "bullet"
   set-default-shape fireballs "fire"
+  set-default-shape waters "water"
   set-default-shape rockets "rocket"
   set-default-shape grenades "grenade"
   set-default-shape mines "mine"
   set-default-shape bombs "bomb"
-  
   set-default-shape explosions "explosion"
   set-default-shape targets "target"
   
-  set weapons (list "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Rocket Launcher" 
+  set weapons (list "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Hose" "Water Gun" "Rocket Launcher" 
     "Grenade Launcher" "Mines" "Bombs" "God's Hand")
-  set weapons-cost (list 0 50 200 500 350 800 2000 600 400 405 10000)
-  set weapons-bought (list "Tickle")
+  set weapons-cost (list 0 60 125 400 250 450 500 800 300 290 255 2500)
   set weapon "Tickle"
+  set weapons-bought (list "Tickle")
 end
 
 to play
@@ -76,19 +76,20 @@ to play
   if weapon = "Machine Gun" [machine-gun-move]
   if weapon = "Shotgun" [shotgun-move]
   if weapon = "Flame Thrower" [flame-thrower-move]
+  if weapon = "Hose" [hose-move]
   if weapon = "Rocket Launcher" [rocket-launcher-move]
   if weapon = "Grenade Launcher" [grenade-launcher-move]
-  if weapon = "Mines" [mines-create]
-  if weapon = "Bombs" [bombs-create]
+  if weapon = "Mines" [mine-create]
+  if weapon = "Bombs" [bomb-create]
   if weapon = "God's Hand" [god-hand-move]
   
   bullet-move
   fireball-move
+  water-move
   rocket-move
   grenade-move
   mine-move
   bomb-move
-  
   buddy-effects
   explosion-fade
   
@@ -109,8 +110,8 @@ to tickle-move
         set buddy-emotion (buddy-emotion + 5)
         set heading ([heading] of myself)
         set buddy-speed (buddy-speed + 2)]
-      set score (score + 20)
-      set money (money + 2)]]]
+      set score (score + 30)
+      set money (money + 3)]]]
 end
 
 to punch-move
@@ -124,8 +125,8 @@ to punch-move
         set buddy-emotion (buddy-emotion - 4)
         set heading ([heading] of myself)
         set buddy-speed (buddy-speed + mouse-speed * 10)]
-      set score (score + 30)
-      set money (money + 3)]]]
+      set score (score + 40)
+      set money (money + 4)]]]
 end
 
 to pistol-move
@@ -134,7 +135,7 @@ to pistol-move
   ask pistols [weapon-target]
   if mouse-down? [
     every .35 [ask pistols [
-        hatch-bullets 1 [set size 1.5]]]]]
+      hatch-bullets 1 [set size 1.5]]]]]
 end
 
 to machine-gun-move
@@ -143,7 +144,7 @@ to machine-gun-move
   ask machine-guns [weapon-target]
   if mouse-down? [
     every .05 [ask machine-guns [
-        hatch-bullets 1 [set size 1.5]]]]]
+      hatch-bullets 1 [set size 1.5]]]]]
 end
 
 to shotgun-move
@@ -152,9 +153,9 @@ to shotgun-move
   ask shotguns [weapon-target]
   if mouse-down? [
     every .65 [ask shotguns [
-        hatch-bullets 6 [
-          set size 1.5 
-          rt random 17 - 8]]]]]
+      hatch-bullets 6 [
+        set size 1.5 
+        rt random 17 - 8]]]]]
 end
 
 to flame-thrower-move
@@ -163,19 +164,41 @@ to flame-thrower-move
   ask flame-throwers [weapon-target]
   if mouse-down? [
     every .03 [ask flame-throwers [
-        hatch-fireballs (random 3) + 1 [
-          set size 1.5 
-          set heading (heading - 10 + random 21)
-          set extinguish-timer 22]]]]]
+      hatch-fireballs (random 3) + 1 [
+        set size 1.5 
+        set heading (heading - 10 + random 21)
+        set extinguish-timer 22]]]]]
 end
 
+to hose-move
+  ifelse (count hoses = 0) [change-weapon
+    create-hoses 1 [
+      set size 5
+      hatch-anchors 1 [ht
+        create-link-with myself
+        setxy 0 max-pycor
+        ask my-links [
+          set thickness .55
+          set color (random 14 * 10 + 5)]]]] [
+  ask hoses [weapon-target]
+  ask links [ifelse [heading] of one-of hoses > 180 [
+      set shape "hose right"] [
+      set shape "hose left"]]
+  if mouse-down? [
+    every .03 [ ask hoses [
+      hatch-waters (random 5) + 10 [
+        set size .3
+        set heading (heading - 15 + random 31)
+        set fade-timer 40]]]]]
+end
+  
 to rocket-launcher-move
   ifelse (count rocket-launchers = 0) [change-weapon
     create-rocket-launchers 1 [set size 4.7]] [
   ask rocket-launchers [weapon-target]
   if mouse-down? [
     every 1 [ask rocket-launchers [
-        hatch-rockets 1 [set size 2.6]]]]]
+      hatch-rockets 1 [set size 2.6]]]]]
 end
 
 to grenade-launcher-move
@@ -186,57 +209,58 @@ to grenade-launcher-move
     facexy ([xcor] of one-of buddies) ([ycor] of one-of buddies + (distance one-of buddies) / 2)]
   if mouse-down? [
     every .7 [ask grenade-launchers [
-        hatch-grenades 1 [
-          set size 2.6
-          set grenade-speed (abs (xcor - [xcor] of one-of buddies) / 65)]]]]]
+      hatch-grenades 1 [
+        set size 2.6
+        set grenade-speed (abs (xcor - [xcor] of one-of buddies) / sqrt (distance one-of buddies)) / 15]]]]]
 end
 
-to mines-create
+to mine-create
   ifelse (count hands = 0) [change-weapon
     create-hands 1 [set size 3]] [
   ask hands [weapon-target]
   if mouse-down? [
     every .5 [ask hands [
-        hatch-mines 1 [set size 2.2]]]]]
+      hatch-mines 1 [set size 2.2]]]]]
 end
 
-to bombs-create
+to bomb-create
   ifelse (count hands = 0) [change-weapon
     create-hands 1 [set size 3]] [
   if (count targets = 0) [ask hands [weapon-target]]
-    ask hands [
-      ifelse mouse-down? [
-        ifelse (count targets = 0) [
-          hatch-targets 1 [
-            set size 8
-            create-link-from myself]] [
-        ask targets [setxy mouse-xcor mouse-ycor]]] [
-      if any? targets [
-        face one-of targets
-        hatch-bombs 1 [
-          set size 3
-          set bomb-timer 330
-          set bomb-speed [link-length] of one-of links / 80]
-        ask targets [die]]]]]
+  ask hands [
+    ifelse mouse-down? [
+      ifelse (count targets = 0) [
+        hatch-targets 1 [
+          set size 8
+          create-link-from myself]] [
+      ask targets [setxy mouse-xcor mouse-ycor]]] [
+    if any? targets [
+      face one-of targets
+      hatch-bombs 1 [
+        set size 3
+        set bomb-timer 330
+        set bomb-speed [link-length] of one-of links / 60]
+      ask targets [die]]]]]
 end
 
 to god-hand-move
   ifelse (count god-hands = 0) [change-weapon
     create-god-hands 1 [set size 4]] [
   ask god-hands [weapon-target]
-    if mouse-down? [
-      every .03 [ask god-hands [
-        hatch-explosions 3 [
-          set explosion-timer 50
-          set heading random 360
-          fd 1.4]
-        if any? buddies in-radius 6 [
-          ask buddies [
-            set buddy-emotion (buddy-emotion - 1)
-            set buddy-speed (buddy-speed + 300)
-            face myself
-            set heading (heading + 180)]
-          set score (score + 5)]]]]]
+  if mouse-down? [
+    every .011 [ask god-hands [
+      hatch-explosions 2 [
+        set explosion-timer 50
+        set heading random 360
+        fd 1.4]
+      if any? buddies in-radius 6 [
+        ask buddies [
+          set buddy-emotion (buddy-emotion - 1)
+          set buddy-speed (buddy-speed + 300)
+          face myself
+          set heading (heading + 180)]
+        set score (score + 50)
+        set money (money + 5)]]]]]
 end
 
 to bullet-move
@@ -245,13 +269,13 @@ to bullet-move
       ask buddies [
         set buddy-emotion (buddy-emotion - .4)
         set heading ([heading] of myself)
-      	set buddy-speed (buddy-speed + 2)]
-      set score (score + 10)
-      set money (money + 1)
+        	set buddy-speed (buddy-speed + 2)]
+      set score (score + 15)
+      set money (money + 1.5)
       die]
     ifelse can-move? 1 [fd .5] [die]]
 end
-
+  
 to fireball-move
   ask fireballs [
     if any? buddies in-radius 1 [
@@ -267,6 +291,22 @@ to fireball-move
       set extinguish-timer (extinguish-timer - 1)] [die]
     if extinguish-timer <= 0 [die]]
 end
+  
+to water-move
+  ask waters [
+    if any? buddies in-radius 2 [
+      ask buddies [
+        set buddy-emotion (buddy-emotion + .2)
+        if flame-timer > 5 [set flame-timer (flame-timer - .5)]
+        set buddy-speed (buddy-speed + .03)
+        set heading ([heading] of myself)]
+      set score (score + 1)
+      set money (money + .1)
+      die]
+    ifelse can-move? .5 [fd .3
+      set fade-timer (fade-timer - 1)] [die]
+    if fade-timer <= 0 [die]]
+end
 
 to rocket-move
   ask rockets [
@@ -275,8 +315,8 @@ to rocket-move
         set buddy-emotion (buddy-emotion - 20)
         set buddy-speed (buddy-speed + 500)
         set heading ([heading] of myself)]
-      set score (score + 150)
-      set money (money + 15)
+      set score (score + 200)
+      set money (money + 20)
       explode 70]
     ifelse can-move? 1.2 [jump 1.2] [die]]
 end
@@ -290,12 +330,12 @@ to grenade-move
         set buddy-speed (buddy-speed + 300)
         face myself
         set heading (heading + 180)]
-      set score (score + 50)
-      set money (money + 5)
+      set score (score + 100)
+      set money (money + 10)
       explode 25]
     if can-move? grenade-speed and ycor > (min-pycor + 1) [
       fd grenade-speed
-      set grenade-speed (grenade-speed * 99 / 100)]]
+      set grenade-speed (grenade-speed * .989)]]
 end
 
 to mine-move
@@ -306,8 +346,8 @@ to mine-move
         set buddy-speed (buddy-speed + 200)
         face myself
         set heading (heading + 180)]
-      set score (score + 50)
-      set money (money + 5)
+      set score (score + 80)
+      set money (money + 8)
       explode 20]]
 end
 
@@ -321,14 +361,13 @@ to bomb-move
         set buddy-speed (buddy-speed + 200)
         face myself
         set heading (heading + 180)]
-      set score (score + 60)
-      set money (money + 6)
+      set score (score + 120)
+      set money (money + 12)
       explode 30]
     if can-move? bomb-speed and ycor > (min-pycor + 1) [
       fd bomb-speed
-      set bomb-speed (bomb-speed * 99 / 100)]]
+      set bomb-speed (bomb-speed * .99)]]
 end
-    
 
 to buddy-effects
   ask buddies [
@@ -351,10 +390,11 @@ to buddy-effects
 end
 
 to explosion-fade
-  ask explosions [set size (explosion-timer / 3)
-                  set color (scale-color red explosion-timer 50 0)
-                  set explosion-timer (explosion-timer - 1.5)
-                  if explosion-timer <= 0 [die]]
+  ask explosions [
+    set size (explosion-timer / 3)
+    set color (scale-color red explosion-timer 50 0)
+    set explosion-timer (explosion-timer - 1.5)
+    if explosion-timer <= 0 [die]]
 end
 
 to weapon-target
@@ -374,8 +414,9 @@ to change-weapon
 end
 
 to explode [strength]
-  hatch-explosions 1 [set explosion-timer strength
-                      set heading random 360]
+  hatch-explosions 1 [
+    set explosion-timer strength
+    set heading random 360]
   die
 end
 
@@ -402,10 +443,10 @@ to buy-weapon
   let weapons-not-bought (filter [not (member? ? weapons-bought)] weapons-can-buy)
   ifelse empty? weapons-not-bought [
     let null user-one-of "Which weapon would you like to buy?" ["Not Enough Money To Buy Any Weapons"]] [
-    let bought-weapon (user-one-of "Which weapon would you like to buy?" weapons-not-bought)
-    set weapons-bought lput bought-weapon weapons-bought
-    set money (money - (item (position bought-weapon weapons) weapons-cost))
-    set weapon bought-weapon]
+  let bought-weapon (user-one-of "Which weapon would you like to buy?" weapons-not-bought)
+  set weapons-bought lput bought-weapon weapons-bought
+  set money (money - (item (position bought-weapon weapons) weapons-cost))
+  set weapon bought-weapon]
 end
 
 to select-weapon
@@ -536,7 +577,7 @@ OUTPUT
 13
 218
 197
-286
+268
 12
 
 MONITOR
@@ -585,24 +626,24 @@ NIL
 1
 
 MONITOR
-44
+19
 409
 101
 454
 Money
 money
-17
+1
 1
 11
 
 MONITOR
 110
 409
-167
+194
 454
 Score
 score
-17
+0
 1
 11
 
@@ -761,16 +802,6 @@ Line -7500403 false 172 251 180 242
 Line -7500403 false 173 255 183 243
 Line -7500403 false 184 242 158 219
 
-god's hand
-true
-0
-Circle -1184463 true false 12 12 277
-Polygon -7500403 true true 67 59 76 52 102 51 102 99 67 106
-Polygon -7500403 true true 105 99 106 51 142 50 141 162 127 176 106 162 106 144 126 133 127 95
-Polygon -7500403 true true 154 164 175 150 175 51 145 50 144 158
-Polygon -7500403 true true 123 131 103 144 104 166 126 181 146 163 153 169 181 149 210 145 210 72 241 147 240 207 195 246 130 247 53 201 60 110 123 99
-Polygon -7500403 true true 178 146 178 51 207 51 206 142
-
 grenade
 true
 0
@@ -816,6 +847,11 @@ Circle -1 true false 40 108 64
 Circle -1 true false 54 226 66
 Circle -1 true false 196 108 64
 Circle -1 true false 180 226 66
+
+hose
+true
+0
+Polygon -7500403 true true 128 97 172 97 165 124 166 151 134 151 135 124
 
 machine gun
 true
@@ -898,6 +934,13 @@ Circle -2674135 false false 135 135 30
 Line -2674135 false 120 150 180 150
 Line -2674135 false 150 120 150 180
 
+water
+true
+0
+Circle -7500403 true true 73 133 152
+Polygon -7500403 true true 219 181 205 152 185 120 174 95 163 64 156 37 149 7 147 166
+Polygon -7500403 true true 79 182 95 152 115 120 126 95 137 64 144 37 150 6 154 165
+
 @#$#@#$#@
 NetLogo 5.0.3
 @#$#@#$#@
@@ -915,6 +958,24 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
+
+hose left
+4.0
+-0.2 0 0.0 1.0
+0.0 1 1.0 0.0
+0.2 0 0.0 1.0
+link direction
+true
+0
+
+hose right
+-4.0
+-0.2 0 0.0 1.0
+0.0 1 1.0 0.0
+0.2 0 0.0 1.0
+link direction
+true
+0
 
 @#$#@#$#@
 0
