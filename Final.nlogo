@@ -49,8 +49,8 @@ to setup
   set-default-shape hoses "hose"
   set-default-shape rocket-launchers "rocket launcher"
   set-default-shape grenade-launchers "grenade launcher"
-  ;set-default-shape hands "hand"
-  ;set-default-shape gods-hand "god's hand"
+  set-default-shape hands "hand"
+  set-default-shape god-hands "god's hand"
   set-default-shape bullets "bullet"
   set-default-shape fireballs "fire"
   set-default-shape waters "water"
@@ -233,6 +233,7 @@ to bomb-create
         hatch-targets 1 [
           set size 8
           create-link-from myself]] [
+      set shape "closed hand"
       ask targets [setxy mouse-xcor mouse-ycor]]] [
     if any? targets [
       face one-of targets
@@ -240,13 +241,16 @@ to bomb-create
         set size 3
         set bomb-timer 330
         set bomb-speed [link-length] of one-of links / 60]
-      ask targets [die]]]]]
+      ask targets [die]
+      set shape "hand"]]]]
 end
 
 to god-hand-move
   ifelse (count god-hands = 0) [change-weapon
     create-god-hands 1 [set size 4]] [
-  ask god-hands [weapon-target]
+  ask god-hands [
+    setxy mouse-xcor mouse-ycor
+    set heading (heading + 3)]
   if mouse-down? [
     every .011 [ask god-hands [
       hatch-explosions 2 [
@@ -716,6 +720,16 @@ true
 Rectangle -7500403 true true 135 135 165 180
 Circle -7500403 true true 135 120 30
 
+closed hand
+false
+0
+Circle -7500403 true true 82 86 136
+Polygon -7500403 true true 68 110 67 128 88 176 118 162 103 116 85 104 74 104
+Polygon -7500403 true true 101 80 99 104 120 189 156 174 130 92 121 79 110 75
+Polygon -7500403 true true 210 90 213 106 186 195 150 180 176 98 185 85 196 81
+Polygon -7500403 true true 165 74 171 94 168 189 135 179 137 93 142 75 155 67
+Polygon -7500403 true true 241 131 243 147 198 203 176 168 204 134 217 122 230 121
+
 explosion
 true
 0
@@ -802,6 +816,17 @@ Line -7500403 false 172 251 180 242
 Line -7500403 false 173 255 183 243
 Line -7500403 false 184 242 158 219
 
+god's hand
+true
+0
+Circle -1184463 true false 18 9 268
+Circle -7500403 true true 82 123 136
+Polygon -7500403 true true 55 84 54 102 89 191 105 136 81 93 72 78 61 78
+Polygon -7500403 true true 87 43 85 67 106 152 142 137 116 55 107 42 96 38
+Polygon -7500403 true true 221 37 223 61 202 146 166 131 192 49 201 36 212 32
+Polygon -7500403 true true 163 29 169 49 166 144 133 134 135 48 141 22 153 22
+Polygon -7500403 true true 267 134 271 148 205 223 202 171 230 137 243 125 256 124
+
 grenade
 true
 0
@@ -832,6 +857,16 @@ Line -7500403 false 156 187 160 186
 Rectangle -7500403 false false 90 60 135 75
 Line -7500403 false 105 75 105 60
 Line -7500403 false 90 66 120 66
+
+hand
+false
+0
+Circle -7500403 true true 82 123 136
+Polygon -7500403 true true 55 84 54 102 89 191 105 136 81 93 72 78 61 78
+Polygon -7500403 true true 87 39 85 63 106 148 142 133 116 51 107 38 96 34
+Polygon -7500403 true true 221 37 223 61 202 146 166 131 192 49 201 36 212 32
+Polygon -7500403 true true 163 29 169 49 166 144 133 134 135 48 141 22 153 22
+Polygon -7500403 true true 267 134 271 148 205 223 202 171 230 137 243 125 256 124
 
 happy buddy
 false
