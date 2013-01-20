@@ -548,7 +548,7 @@ to buy-weapon
   let weapons-can-buy []
   foreach weapons-cost [if ? < money [set weapons-can-buy lput (item (position ? weapons-cost) weapons) weapons-can-buy]]
   let weapons-not-bought (filter [not (member? ? weapons-bought)] weapons)
-  let weapons-list (filter [(not (member? ? weapons-bought)) and (member? ? weapons-can-buy)] weapons)
+  let weapons-list (filter [((not (member? ? weapons-bought)) and (member? ? weapons-can-buy))] weapons)
   ifelse empty? weapons-not-bought [
     let null user-one-of "Which weapon would you like to buy?" ["There are no more weapons to buy."]] [
     ifelse empty? weapons-can-buy [
