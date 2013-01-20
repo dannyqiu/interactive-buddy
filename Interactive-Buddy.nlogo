@@ -41,8 +41,6 @@ bombs-own [bomb-timer bomb-speed]
 
 to startup
   sound:play-sound "Media/Soundtrack.wav"
-  resize-world -15 15 -10 10
-  set-patch-size 22
 end
 
 to setup
@@ -123,7 +121,6 @@ to play
     if Location = "Underwater" [import-drawing "Media/Underwater.jpg"]
     set old-drawing Location]
   if timer > 165 [
-    sound:stop-music
     reset-timer
     sound:play-sound "Media/Soundtrack.wav"]
   wait .01
