@@ -149,13 +149,13 @@ to play
     sound:play-sound "Media/Soundtrack.wav"]
   
   ;Saves weapons bought, money, and score data every 2 seconds
-  every 2 [carefully [file-delete "Saved.data"][]
+  every 1.5 [carefully [file-delete "Saved.data"][]
     file-open "Saved.data"
     file-write weapons-bought
     file-print ""
     file-print money
-    file-print buddy-emotion
     file-print score
+    file-print buddy-emotion
     file-close]
   
   wait .006
@@ -476,7 +476,7 @@ to buddy-effects
       ifelse buddy-emotion < -10 [set shape "sad buddy"] [
         set shape "buddy"]]]
     if buddy-speed > .1 [
-      if abs [pxcor] of patch-ahead 1 = max-pxcor [ ;Code was copied from the Bounce example
+      if abs [pxcor] of patch-ahead 1 = max-pxcor [ ;Code was taken from the Bounce example
         set heading (- heading)]
       if abs [pycor] of patch-ahead 1 = max-pycor [
         set heading (180 - heading)]
@@ -797,21 +797,21 @@ When you move your mouse into the screen, you will notice that your mouse cursor
 
 The more you interact with your buddy (hence the name of the game), the more money you will earn to buy better weapons. To buy a new weapon, hit "`Buy A New Weapon`" and to choose a new weapon, hit "`Choose A New Weapon`". A drop-down list will appear and select the weapon you desire from it.
 
-### Weapons to choose from:
+### Weapons to choose from: (The number next to each weapon is its cost)
 
->  * Tickle - Move the feather around to tickle the buddy. Increases happiness.
->  * Punch - Move the fist around to punch the buddy. Decreases happiness.
->  * Pistol - Shoots one bullet at the buddy. Decreases happiness.
->  * Machine Gun - Shoots bullets at a rapid rate towards the buddy. Decreases happiness.
->  * Shotgun - Shoots six rounds at the buddy that spreads out the farther it goes. Decreases happiness.
->  * Rocket launcher - Shoots a rocket towards the buddy. Decreases happiness by a LARGE amount.
->  * Flamethrower - Shoots flames towards the buddy. Will ignite buddy and cause it to run. Happiness will decrease since the buddy is scared of pyromaniacs.
->  * Hose - Sprays the buddy with clean water, straight from the water filtration system. The pureness makes the buddy happy and it stops fires.
->  * Grenade Launcher - Shoots grenades that detonate when touched. Affected by gravity. Decreases happiness if explosion is near buddy.
->  * Bow - Shoots an arrow at the buddy, causing extreme pain as the arrow is embedded into the buddy's skin.
->  * Mines - Place mines that detonate when touched. Not affected by gravity. Decreases happiness if explosion is near buddy.
->  * Bombs - Place explosives that detonate after a few seconds. Affected by gravity. Decreases happiness if explosion is near buddy.
->  * God's Hand - Will continually make explosions as long as the mouse button is held down. God is punishing the buddy, causing extreme depression.
+>  * (0) Tickle - Move the feather around to tickle the buddy. Increases happiness.
+>  * (60) Punch - Move the fist around to punch the buddy. Decreases happiness.
+>  * (125) Pistol - Shoots one bullet at the buddy. Decreases happiness.
+>  * (320) Machine Gun - Shoots bullets at a rapid rate towards the buddy. Decreases happiness.
+>  * (250) Shotgun - Shoots six rounds at the buddy that spreads out the farther it goes. Decreases happiness.
+>  * (450) Flamethrower - Shoots flames towards the buddy. Will ignite buddy and cause it to run. Happiness will decrease since the buddy is scared of pyromaniacs.
+>  * (500) Hose - Sprays the buddy with clean water, straight from the water filtration system. The pureness makes the buddy happy and it stops fires.
+>  * (800) Rocket launcher - Shoots a rocket towards the buddy. Decreases happiness by a LARGE amount.
+>  * (300) Grenade Launcher - Shoots grenades that detonate when touched. Affected by gravity. Decreases happiness if explosion is near buddy.
+>  * (350) Bow - Shoots an arrow at the buddy, causing extreme pain as the arrow is embedded into the buddy's skin.
+>  * (290) Mines - Place mines that detonate when touched. Not affected by gravity. Decreases happiness if explosion is near buddy.
+>  * (255) Bombs - Place explosives that detonate after a few seconds. Affected by gravity. Decreases happiness if explosion is near buddy.
+>  * (2500) God's Hand - Will continually make explosions as long as the mouse button is held down. God is punishing the buddy, causing extreme depression.
 
 ## CREDITS AND REFERENCES
 
