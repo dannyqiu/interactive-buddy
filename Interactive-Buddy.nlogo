@@ -41,16 +41,32 @@ bombs-own [bomb-timer bomb-speed]
 
 to startup
   user-message "Welcome and say \"Hello\" to your Interactive Buddy!"
+  setup
   ifelse file-exists? "Saved.data" [ ;Imports saved data
     file-open "Saved.data" 
-    set weapons-bought file-read-line
-    set money file-read-line
-    set score file-read-line
-    set buddy-emotion file-read-line
+    set weapons-bought file-read
+    set money file-read
+    set score file-read
+    set buddy-emotion file-read
     file-close] [
   user-message "It seems like you haven't played this game before." 
-  user-message "Please read the Info tab for intructions on how to play with your Interactive Buddy!"]
+  user-message "Please read the Info tab for intructions on how to play with your Interactive Buddy!"
+  set weapons-bought (list "Tickle")]
   
+  sound:play-sound "Media/Soundtrack.wav"
+end
+
+to setup-check
+  ;Checks to see if there is any saved data before clearing
+  ifelse (weapons-bought != 0 and weapons-bought != ["Tickle"]) or money != 0 or score != 0 [
+    ifelse user-yes-or-no? "Do you also want to clear all saved data?" [ca
+      set weapons-bought (list "Tickle")] [ct cp clear-links]] [
+  ca
+  set weapons-bought (list "Tickle")]
+  setup
+end
+
+to setup
   ;Assigns shapes for everything beforehand
   set-default-shape tickles "feather"
   set-default-shape punches "fist"
@@ -75,25 +91,13 @@ to startup
   set-default-shape explosions "explosion"
   set-default-shape targets "target"
   
+  ask patches with [count neighbors != 8] [set pcolor blue] ;Creates blue border around world
+  create-buddies 1 [set heading 0 set shape "sad buddy" set size 3]
+  
   set weapons (list "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Hose" "Rocket Launcher" 
     "Grenade Launcher" "Bow And Arrow" "Mines" "Bombs" "God's Hand")
   set weapons-cost (list 0 60 125 320 250 450 500 800 300 350 290 255 2500)
-  
-  ask patches with [count neighbors != 8] [set pcolor blue] ;Creates blue border around world
-  create-buddies 1 [set heading 0 set shape "sad buddy" set size 3]
-  
-  sound:play-sound "Media/Soundtrack.wav"
-end
-
-to setup
-  ;Checks to see if there is any saved data before clearing
-  if (weapons-bought != 0 and weapons-bought != ["Tickle"]) or money != 0 or score != 0 [
-    ifelse user-yes-or-no? "Are you sure you want to setup? It clears all saved data." [
-      ca
-      set weapon "Tickle"
-      set weapons-bought (list "Tickle")] [ct cp clear-links]]
-  ask patches with [count neighbors != 8] [set pcolor blue] ;Creates blue border around world
-  create-buddies 1 [set heading 0 set shape "sad buddy" set size 3]
+  set weapon "Tickle"
 end
 
 to play
@@ -149,8 +153,8 @@ to play
     file-write weapons-bought
     file-print ""
     file-print money
-    file-print score
     file-print buddy-emotion
+    file-print score
     file-close]
   
   wait .01
@@ -543,13 +547,16 @@ end
 to buy-weapon
   let weapons-can-buy []
   foreach weapons-cost [if ? < money [set weapons-can-buy lput (item (position ? weapons-cost) weapons) weapons-can-buy]]
-  let weapons-not-bought (filter [not (member? ? weapons-bought)] weapons-can-buy)
+  let weapons-not-bought (filter [not (member? ? weapons-bought)] weapons)
+  let weapons-list (filter [(not (member? ? weapons-bought)) and (member? ? weapons-can-buy)] weapons)
   ifelse empty? weapons-not-bought [
-    let null user-one-of "Which weapon would you like to buy?" ["Not Enough Money To Buy Any Weapons"]] [
+    let null user-one-of "Which weapon would you like to buy?" ["There are no more weapons to buy."]] [
+    ifelse empty? weapons-can-buy [
+      let null user-one-of "Which weapon would you like to buy?" ["You can't afford any new weapons!"]] [
   let bought-weapon (user-one-of "Which weapon would you like to buy?" weapons-not-bought)
   set weapons-bought lput bought-weapon weapons-bought
   set money (money - (item (position bought-weapon weapons) weapons-cost))
-  set weapon bought-weapon]
+  set weapon bought-weapon]]
 end
 
 to select-weapon
@@ -604,7 +611,7 @@ BUTTON
 80
 69
 Setup
-setup
+setup-check
 NIL
 1
 T
