@@ -158,7 +158,7 @@ to play
     file-print score
     file-close]
   
-  wait .01
+  wait .006
 end
 
 ;If the feather gets close to the buddy, the buddy will move away
@@ -476,9 +476,9 @@ to buddy-effects
       ifelse buddy-emotion < -10 [set shape "sad buddy"] [
         set shape "buddy"]]]
     if buddy-speed > .1 [
-      if abs [pxcor] of patch-ahead 1 = max-pxcor[ ;Code was copied from the Bounce example
+      if abs [pxcor] of patch-ahead 1 = max-pxcor [ ;Code was copied from the Bounce example
         set heading (- heading)]
-      if abs [pycor] of patch-ahead 1 = max-pycor[
+      if abs [pycor] of patch-ahead 1 = max-pycor [
         set heading (180 - heading)]
       fd 1
       set buddy-speed (buddy-speed - (sqrt buddy-speed))]] ;Buddy's speed decreases so that it doesn't keep moving
@@ -549,15 +549,17 @@ to buy-weapon
   let weapons-can-buy []
   foreach weapons-cost [if ? < money [set weapons-can-buy lput (item (position ? weapons-cost) weapons) weapons-can-buy]]
   let weapons-not-bought (filter [not (member? ? weapons-bought)] weapons)
-  let weapons-list (filter [((not (member? ? weapons-bought)) and (member? ? weapons-can-buy))] weapons)
-  ifelse empty? weapons-not-bought [
-    let null user-one-of "Which weapon would you like to buy?" ["There are no more weapons to buy."]] [
-    ifelse empty? weapons-can-buy [
-      let null user-one-of "Which weapon would you like to buy?" ["You can't afford any new weapons!"]] [
-  let bought-weapon (user-one-of "Which weapon would you like to buy?" weapons-not-bought)
-  set weapons-bought lput bought-weapon weapons-bought
-  set money (money - (item (position bought-weapon weapons) weapons-cost))
-  set weapon bought-weapon]]
+  let weapons-list (filter [((member? ? weapons-not-bought) and (member? ? weapons-can-buy))] weapons)
+  ifelse empty? weapons-list
+    [ifelse empty? weapons-can-buy or empty? weapons-not-bought
+      [ifelse empty? weapons-can-buy
+        [let null user-one-of "Which weapon would you like to buy?" ["You can't afford any new weapons!"]]
+        [let null user-one-of "Which weapon would you like to buy?" ["You already bought all the weapons!"]]]
+      [let null user-one-of "Which weapon would you like to buy?" ["Get more money to buy weapons!"]]]
+    [let bought-weapon (user-one-of "Which weapon would you like to buy?" weapons-list)
+      set weapons-bought lput bought-weapon weapons-bought
+      set money (money - (item (position bought-weapon weapons) weapons-cost))
+      set weapon bought-weapon]
 end
 
 to select-weapon
