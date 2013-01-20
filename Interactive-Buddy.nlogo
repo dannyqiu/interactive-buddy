@@ -1,8 +1,8 @@
 globals [mouse-oldx mouse-oldy mouse-speed
-  weapon weapon-number old-weapon
-  weapons weapons-bought 
-  score money weapons-cost
-  old-drawing]
+  weapon weapon-number
+  weapons weapons-cost
+  weapons-bought score money buddy-emotion
+  old-weapon old-drawing]
 extensions [sound]
 
 breed [buddies buddy]
@@ -31,7 +31,7 @@ breed [explosions explosion]
 breed [anchors anchor]
 breed [targets target]
 
-buddies-own [flame-timer buddy-speed buddy-emotion]
+buddies-own [flame-timer buddy-speed]
 fireballs-own [extinguish-timer]
 waters-own [dry-timer]
 explosions-own [explosion-timer]
@@ -40,13 +40,16 @@ arrows-own [stick-timer hit?]
 bombs-own [bomb-timer bomb-speed]
 
 to startup
-  sound:play-sound "Media/Soundtrack.wav"
-end
-
-to setup
-  ca
-  ask patches with [count neighbors != 8] [set pcolor blue] ;Creates blue border around world
-  create-buddies 1 [set heading 0 set shape "sad buddy" set size 3]
+  user-message "Welcome and say \"Hello\" to your Interactive Buddy!"
+  ifelse file-exists? "Saved.data" [ ;Imports saved data
+    file-open "Saved.data" 
+    set weapons-bought file-read-line
+    set money file-read-line
+    set score file-read-line
+    set buddy-emotion file-read-line
+    file-close] [
+  user-message "It seems like you haven't played this game before." 
+  user-message "Please read the Info tab for intructions on how to play with your Interactive Buddy!"]
   
   ;Assigns shapes for everything beforehand
   set-default-shape tickles "feather"
@@ -75,8 +78,22 @@ to setup
   set weapons (list "Tickle" "Punch" "Pistol" "Machine Gun" "Shotgun" "Flame Thrower" "Hose" "Rocket Launcher" 
     "Grenade Launcher" "Bow And Arrow" "Mines" "Bombs" "God's Hand")
   set weapons-cost (list 0 60 125 320 250 450 500 800 300 350 290 255 2500)
-  set weapon "Tickle"
-  set weapons-bought (list "Tickle")
+  
+  ask patches with [count neighbors != 8] [set pcolor blue] ;Creates blue border around world
+  create-buddies 1 [set heading 0 set shape "sad buddy" set size 3]
+  
+  sound:play-sound "Media/Soundtrack.wav"
+end
+
+to setup
+  ;Checks to see if there is any saved data before clearing
+  if (weapons-bought != 0 and weapons-bought != ["Tickle"]) or money != 0 or score != 0 [
+    ifelse user-yes-or-no? "Are you sure you want to setup? It clears all saved data." [
+      ca
+      set weapon "Tickle"
+      set weapons-bought (list "Tickle")] [ct cp clear-links]]
+  ask patches with [count neighbors != 8] [set pcolor blue] ;Creates blue border around world
+  create-buddies 1 [set heading 0 set shape "sad buddy" set size 3]
 end
 
 to play
@@ -120,9 +137,22 @@ to play
     if Location = "Space" [import-drawing "Media/Space.jpg"]
     if Location = "Underwater" [import-drawing "Media/Underwater.jpg"]
     set old-drawing Location]
+  
+  ;Plays soundtrack continously (plays again once soundtrack has finished)
   if timer > 165 [
     reset-timer
     sound:play-sound "Media/Soundtrack.wav"]
+  
+  ;Saves weapons bought, money, and score data every 2 seconds
+  every 2 [carefully [file-delete "Saved.data"][]
+    file-open "Saved.data"
+    file-write weapons-bought
+    file-print ""
+    file-print money
+    file-print score
+    file-print buddy-emotion
+    file-close]
+  
   wait .01
 end
 
@@ -501,11 +531,10 @@ end
 
 ;Used to display the happiness/sadness of the buddy
 to-report emotions
-  let x [buddy-emotion] of one-of buddies
-  ifelse x > 300 [report "VERY Happy"] [
-    ifelse x > 20 [report "Happy"] [
-      ifelse x < -300 [report "VERY Sad"] [
-        ifelse x < -20 [report "Sad"] [
+  ifelse buddy-emotion > 300 [report "VERY Happy"] [
+    ifelse buddy-emotion > 20 [report "Happy"] [
+      ifelse buddy-emotion < -300 [report "VERY Sad"] [
+        ifelse buddy-emotion < -20 [report "Sad"] [
           report "BORED"]]]]
 end
 
@@ -740,11 +769,13 @@ Made by Sayid Elsaieh and Danny Qiu**
 
 This is our little version of the popular flash game, [Interactive Buddy] (http://www.kongregate.com/games/shockvalue_/interactive-buddy?acomplete=my+inter), recreated in NetLogo. It is essentially a room where you test out various weapons on the buddy to gain money, in which you use to buy more weapons. The weapons get progressively better, starting with a feather (used for tickling) and ending with a God's hand. The buddies emotions also vary depending on how you treat it.
 
-Though this game may seem cruel, no real buddies were hurt in the process of making this game.
+Though this game may seem cruel, no real buddies were hurt in the process of making this game. 
 
 ## HOW IT WORKS
 
 Generally, every weapon has it own procedure to move and create bullets, fireballs, water, etc... Then, there are other procedures that make the bullets, fireballs, water, etc... move. This creates an easy to follow code and a more stable code as a plus. Most of the explanation of how each weapon works is in the code's comments.
+
+Game stats are auto-saved using the file- functions in NetLogo. So, there is no need to be scared that your precious weapons will disappear once you quit NetLogo.
 
 ## HOW TO USE IT
 
