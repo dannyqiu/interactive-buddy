@@ -40,6 +40,7 @@ arrows-own [stick-timer hit?]
 bombs-own [bomb-timer bomb-speed]
 
 to startup
+  ca
   user-message "Welcome and say \"Hello\" to your Interactive Buddy!"
   setup
   ifelse file-exists? "Saved.data" [ ;Imports saved data
