@@ -3,7 +3,6 @@ globals [mouse-oldx mouse-oldy mouse-speed
   weapons weapons-cost
   weapons-bought score money buddy-emotion
   old-weapon old-drawing]
-extensions [sound]
 
 breed [buddies buddy]
 breed [tickles tickle]
@@ -53,8 +52,6 @@ to startup
   user-message "It seems like you haven't played this game before." 
   user-message "Please read the Info tab for intructions on how to play with your Interactive Buddy!"
   set weapons-bought (list "Tickle")]
-  
-  sound:play-sound "Media/Soundtrack.wav"
 end
 
 to setup-check
@@ -142,11 +139,6 @@ to play
     if Location = "Space" [import-drawing "Media/Space.jpg"]
     if Location = "Underwater" [import-drawing "Media/Underwater.jpg"]
     set old-drawing Location]
-  
-  ;Plays soundtrack continously (plays again once soundtrack has finished)
-  if timer > 165 [
-    reset-timer
-    sound:play-sound "Media/Soundtrack.wav"]
   
   ;Saves weapons bought, money, and score data every 2 seconds
   every 1.5 [carefully [file-delete "Saved.data"][]
